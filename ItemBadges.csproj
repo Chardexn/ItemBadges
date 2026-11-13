@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\build\PsmMod.props" />
+
+  <PropertyGroup>
+    <AssemblyName>ItemBadges</AssemblyName>
+    <RootNamespace>ItemBadges</RootNamespace>
+  </PropertyGroup>
+
+  <Import Project="..\build\PsmMod.targets" />
+</Project>

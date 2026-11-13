@@ -1,0 +1,15 @@
+# key,text
+cfg_style,Badge style
+cfg_style_tip,ColorBlock: corner swatch with a black outline. Number: colored score. Both: swatch and number.
+cfg_preset,Color preset
+cfg_preset_tip,Spectrum: red-gray-green-blue-purple-gold (blue/purple skipped when there are few positive grades; the best grade stays gold). Compact: red-gray-green-gold. 0 is always gray; all negatives are red.
+cfg_block_size,Swatch size
+cfg_block_size_tip,Swatch edge in pixels at 16px grid. A 1px black outline is added around it.
+cfg_font_size,Number size
+cfg_font_size_tip,Badge font size at 16px grid.
+cfg_berry,Show berry quality
+cfg_berry_tip,"Hidden berry quality. The number is the wine-score contribution: mold -1, under/overripe 0, normal +1, small +2."
+cfg_yeast,Show yeast type
+cfg_yeast_tip,Normal yeast shows ferment speed; super yeast is faster; illegal yeast makes counterfeit wine; reusable yeast shows infinity.
+cfg_water,Show water purity
+cfg_water_tip,"Base water (98%) is 0. Pure +2, high quality +1, base 0, ghost -1, rust -2, gutterflow -3. Uses real purity."

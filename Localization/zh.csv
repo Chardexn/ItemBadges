@@ -1,0 +1,15 @@
+# key,文本
+cfg_style,角标样式
+cfg_style_tip,ColorBlock：右下角色块（带黑框）。Number：彩色数字。Both：色块加数字。
+cfg_preset,颜色预设
+cfg_preset_tip,Spectrum：红-灰-绿-蓝-紫-金（正档少时跳过蓝紫，最好一档仍是金）。Compact：红-灰-绿-金。0 永远是灰，负值都是红。
+cfg_block_size,色块大小
+cfg_block_size_tip,色块边长（格子 16px 时的像素）。外圈黑框另加 1px。
+cfg_font_size,数字大小
+cfg_font_size_tip,角标数字的字号（格子 16px 时）。
+cfg_berry,显示葡萄品质
+cfg_berry_tip,葡萄隐藏品质。数字是对酒分的实际贡献：发霉 -1，欠熟/过熟 0，正常 +1，小颗 +2。
+cfg_yeast,显示酵母种类
+cfg_yeast_tip,普通酵母显示发酵速度；超级酵母更快；非法酵母酿假酒；可循环酵母显示 ∞。
+cfg_water,显示水纯净度
+cfg_water_tip,以基础水（98%）为 0。纯水 +2，优质 +1，基础 0，幽灵 -1，锈水 -2，沟水 -3。显示真实纯净度。

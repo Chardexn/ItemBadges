@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest>
+  <ID>item_badges</ID>
+  <Name>物品角标</Name>
+  <Author>kirkxia</Author>
+  <ModVersion>1.0</ModVersion>
+  <Description>在葡萄右下角显示品质角标（色块或数字），无需鉴定即可分辨种类。</Description>
+  <GameVersions>
+    <Version>1.0.0</Version>
+  </GameVersions>
+  <Prerequisites />
+  <Assemblies>
+    <Assembly>ItemBadges.dll</Assembly>
+  </Assemblies>
+  <!-- 大多数 mod 为空。用到 files/network/process/steam/steam-auth/window 时才声明；游戏内 F8 运行 mod-scan item_badges 自查 -->
+  <Capabilities />
+</Manifest>
