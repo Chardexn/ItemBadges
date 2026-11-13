@@ -1,27 +1,55 @@
-# 物品角标（ItemBadges）
+# 物品角标
 
-《深空当铺》(Probably Stolen) 模组。在物品右下角显示品质 / 种类角标（色块或数字），无需鉴定即可分辨葡萄、酵母和水。
+《深空当铺》模组：在葡萄、酵母和水的右下角画出品质 / 种类角标（色块或数字），不用鉴定也能一眼分清。
 
-A quality-of-life mod for *Probably Stolen*. Draws a corner badge (swatch and/or number) on berries, yeast, and water so you can tell grade or type without identifying them.
+A *Probably Stolen* mod that draws a corner badge on berries, yeast, and water.
 
-## 功能
+**适配游戏：** 1.0.0.13（商店标签 100-Rev13）  
+**作者：** kirkxia
 
-- **葡萄**：隐藏品质。数字是对酒分的实际贡献：发霉 -1，欠熟/过熟 0，正常 +1，小颗 +2
-- **酵母**：普通酵母显示发酵速度；超级酵母更快；非法酵母酿假酒；可循环酵母显示 ∞
-- **水**：以基础水（98%）为 0。纯水 +2，优质 +1，基础 0，幽灵 -1，锈水 -2，沟水 -3（真实纯净度）
+## 做什么
 
-设置在游戏「模组」菜单的齿轮里：角标样式（色块 / 数字 / 两者）、颜色预设、色块与字号、三类物品各自开关。
+这三类物品外观几乎一样，品质藏在鉴定结果里。本模组在格子右下角加一个小标记：
+
+- **葡萄**：对酿酒分数的实际贡献。发霉 -1，欠熟 / 过熟 0，正常 +1，小颗 +2
+- **酵母**：普通酵母显示发酵速度；超级酵母更快；非法酵母会酿假酒；可循环酵母显示 ∞
+- **水**：以基础水（98%）为 0。纯水 +2，优质 +1，基础 0，幽灵 -1，锈水 -2，沟水 -3（按真实纯净度）
+
+0 永远是灰色，负值都是红色，最好的一档是金色。
+
+## 怎么用
+
+1. 把模组文件夹放到游戏的 `Mods\` 下，启动游戏，在「模组」菜单里**启用**，然后**重启**一次。
+2. 进存档后，上述物品格子右下角就会出现角标，不用点任何按钮。
+3. 不想看某类物品时，到模组齿轮里关掉对应开关。
+
+## 设置
+
+游戏主菜单 → 模组 → 本模组右侧齿轮：
+
+| 设置 | 说明 |
+|---|---|
+| 角标样式 | 色块 / 数字 / 两者都显示 |
+| 颜色预设 | Spectrum（档位多时红-灰-绿-蓝-紫-金）或 Compact（红-灰-绿-金） |
+| 色块大小 / 数字大小 | 按 16 像素格子换算 |
+| 显示葡萄品质 / 酵母种类 / 水纯净度 | 三类各自开关 |
 
 ## 安装
 
-把编译产物放到游戏的 `Mods/ItemBadges/`（需包含 `manifest.xml`、`ItemBadges.dll` 以及 `Localization/`）。启用后重启游戏。
+把整个模组文件夹放到：
 
-本仓库是源码，作为作者私有工作区的 Git 子模块编译：项目引用工作区共享的 `build/PsmMod.props`。单独克隆后无法直接 `dotnet build`，请把本目录放到该工作区根目录后再编译，或把已编译的 DLL 与资源复制进游戏 `Mods/`。
+`…\steamapps\common\Probably Stolen\Mods\ItemBadges\`
 
-## 清单
+文件夹里至少要有 `manifest.xml`、`ItemBadges.dll`、`Localization\`。启用后必须重启游戏。
 
-| 字段 | 值 |
-|---|---|
-| ID | `item_badges` |
-| 游戏版本 | `1.0.0` |
-| 能力 | 无 |
+从源码编译（需要 [.NET SDK](https://dotnet.microsoft.com/download) 6.0+ 和一份正式版游戏）：
+
+```powershell
+dotnet build -c Release
+```
+
+会生成 `dist\ItemBadges\`，并自动复制到游戏的 `Mods\ItemBadges\`。游戏不在默认 Steam 路径时，复制 `GameDir.local.props.example` 为 `GameDir.local.props` 并改里面的路径。
+
+## 卸载
+
+在模组菜单里停用，重启即可。只改显示，不影响存档和物品。

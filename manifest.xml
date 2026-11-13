@@ -6,7 +6,7 @@
   <ModVersion>1.0</ModVersion>
   <Description>在葡萄右下角显示品质角标（色块或数字），无需鉴定即可分辨种类。</Description>
   <GameVersions>
-    <Version>1.0.0</Version>
+    <Version>1.0.0.13</Version>
   </GameVersions>
   <Prerequisites />
   <Assemblies>
