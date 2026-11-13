@@ -1,12 +1,18 @@
 # key,text
 cfg_style,Badge style
-cfg_style_tip,ColorBlock: corner swatch with a black outline. Number: colored score. Both: swatch and number.
+cfg_style_tip,Swatch: corner block with a black outline. Number: colored score. Both: swatch and number.
 cfg_preset,Color preset
 cfg_preset_tip,Spectrum: red-gray-green-blue-purple-gold (blue/purple skipped when there are few positive grades; the best grade stays gold). Compact: red-gray-green-gold. 0 is always gray; all negatives are red.
-cfg_block_size,Swatch size
-cfg_block_size_tip,Swatch edge in pixels at 16px grid. A 1px black outline is added around it.
-cfg_font_size,Number size
-cfg_font_size_tip,Badge font size at 16px grid.
+cfg_preset_preview,Preview
+opt_style_block,Swatch
+opt_style_number,Number
+opt_style_both,Swatch + number
+opt_preset_spectrum,Spectrum (red-gray-green-blue-purple-gold)
+opt_preset_compact,Compact (red-gray-green-gold)
+cfg_block_size,Swatch size (2–12)
+cfg_block_size_tip,Type the edge in pixels at 16px grid. A 1px black outline is added around it.
+cfg_font_size,Number size (6–18)
+cfg_font_size_tip,Type the font size at 16px grid.
 cfg_berry,Show berry quality
 cfg_berry_tip,"Hidden berry quality. The number is the wine-score contribution: mold -1, under/overripe 0, normal +1, small +2."
 cfg_yeast,Show yeast type

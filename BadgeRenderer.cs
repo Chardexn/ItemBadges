@@ -108,16 +108,10 @@ namespace ItemBadges
 
             if (showNumber)
             {
-                LayoutNumber(
-                    EnsureShadow(nodes, element.middle),
-                    EnsureText(nodes, element.middle),
-                    badge,
-                    px,
-                    showBlock);
+                LayoutNumber(EnsureText(nodes, element.middle), badge, px, showBlock);
             }
             else
             {
-                HideText(nodes.Shadow);
                 HideText(nodes.Text);
             }
         }
@@ -170,24 +164,11 @@ namespace ItemBadges
             return node;
         }
 
-        private static TreeNodeRender EnsureShadow(Nodes nodes, TreeNodeRender parent)
-        {
-            if (nodes.Shadow == null)
-            {
-                nodes.Shadow = CreateTextNode(parent, "ItemBadgeTextShadow");
-                nodes.Shadow.text.fontStyle = FontStyles.Bold;
-                nodes.Shadow.text.color = RenderHandler.GetColorFromPalette(RenderHandler.ColorPalette.VeryDarkGray);
-            }
-
-            return nodes.Shadow;
-        }
-
         private static TreeNodeRender EnsureText(Nodes nodes, TreeNodeRender parent)
         {
             if (nodes.Text == null)
             {
                 nodes.Text = CreateTextNode(parent, "ItemBadgeText");
-                nodes.Text.text.fontStyle = FontStyles.Normal;
             }
 
             return nodes.Text;
@@ -210,6 +191,9 @@ namespace ItemBadges
             node.text.alignment = TextAlignmentOptions.BottomRight;
             node.text.enableWordWrapping = false;
             node.text.overflowMode = TextOverflowModes.Overflow;
+            node.text.fontStyle = FontStyles.Normal;
+            node.text.outlineWidth = 0.08f;
+            node.text.outlineColor = Color.black;
             return node;
         }
         #endregion
@@ -242,12 +226,7 @@ namespace ItemBadges
             node.image.enabled = visible;
         }
 
-        private static void LayoutNumber(
-            TreeNodeRender shadow,
-            TreeNodeRender text,
-            Badge badge,
-            int px,
-            bool shiftLeftForBlock)
+        private static void LayoutNumber(TreeNodeRender text, Badge badge, int px, bool shiftLeftForBlock)
         {
             int inner = Mathf.Max(1, BadgeConfig.BlockSize) * px;
             int borderW = px;
@@ -260,13 +239,6 @@ namespace ItemBadges
 
             Vector2 pos = new Vector2(-InsetPx * px - extraLeft, InsetPx * px);
             Vector2 size = new Vector2(fontSize * 2.6f, fontSize * 1.5f);
-
-            PlaceText(shadow, badge.Text, fontSize, size, pos + new Vector2(1f, -1f), visible: true);
-            if (shadow != null)
-            {
-                shadow.rectTransform.SetAsLastSibling();
-            }
-
             PlaceText(text, badge.Text, fontSize, size, pos, visible: true);
             if (text != null)
             {
@@ -299,7 +271,6 @@ namespace ItemBadges
         {
             HideImage(nodes.Border);
             HideImage(nodes.Block);
-            HideText(nodes.Shadow);
             HideText(nodes.Text);
         }
 
@@ -324,7 +295,6 @@ namespace ItemBadges
         {
             public TreeNodeRender Border;
             public TreeNodeRender Block;
-            public TreeNodeRender Shadow;
             public TreeNodeRender Text;
         }
     }

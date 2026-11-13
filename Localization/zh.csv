@@ -1,12 +1,18 @@
 # key,文本
 cfg_style,角标样式
-cfg_style_tip,ColorBlock：右下角色块（带黑框）。Number：彩色数字。Both：色块加数字。
+cfg_style_tip,色块：右下角色块（带黑框）。数字：彩色数字。两者：色块加数字。
 cfg_preset,颜色预设
-cfg_preset_tip,Spectrum：红-灰-绿-蓝-紫-金（正档少时跳过蓝紫，最好一档仍是金）。Compact：红-灰-绿-金。0 永远是灰，负值都是红。
-cfg_block_size,色块大小
-cfg_block_size_tip,色块边长（格子 16px 时的像素）。外圈黑框另加 1px。
-cfg_font_size,数字大小
-cfg_font_size_tip,角标数字的字号（格子 16px 时）。
+cfg_preset_tip,光谱：红-灰-绿-蓝-紫-金（正档少时跳过蓝紫，最好一档仍是金）。简洁：红-灰-绿-金。0 永远是灰，负值都是红。
+cfg_preset_preview,色带预览
+opt_style_block,色块
+opt_style_number,数字
+opt_style_both,色块+数字
+opt_preset_spectrum,光谱（红-灰-绿-蓝-紫-金）
+opt_preset_compact,简洁（红-灰-绿-金）
+cfg_block_size,色块大小（2–12）
+cfg_block_size_tip,直接输入像素边长。格子为 16px 时的值；外圈黑框另加 1px。
+cfg_font_size,数字大小（6–18）
+cfg_font_size_tip,直接输入字号。格子为 16px 时的值。
 cfg_berry,显示葡萄品质
 cfg_berry_tip,葡萄隐藏品质。数字是对酒分的实际贡献：发霉 -1，欠熟/过熟 0，正常 +1，小颗 +2。
 cfg_yeast,显示酵母种类
