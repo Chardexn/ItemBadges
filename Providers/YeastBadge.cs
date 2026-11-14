@@ -1,7 +1,7 @@
 namespace ItemBadges
 {
     /// <summary>
-    /// 酵母：非法红、普通绿、可循环紫（Compact 时与普通同色靠 ∞ 区分）、超级金。
+    /// 酵母：非法/可循环为特殊紫；普通 +1、超级 +2 走当前配色。不需要工具。
     /// </summary>
     internal static class YeastBadge
     {
@@ -22,29 +22,58 @@ namespace ItemBadges
                 return null;
             }
 
-            int power = item.GetTagReadonly(WineHelper.WINE_YEAST_POWER_INT).GetInt();
-            if (power < 1)
-            {
-                power = 1;
-            }
-
-            string powerText = power.ToString();
             if (item.IsTag(WineHelper.WINE_YEAST_ILLEGAL_TAG))
             {
-                return new Badge(BadgePalette.ForDelta(-1), powerText);
+                return Illegal();
             }
 
             if (item.IsTag(WineHelper.WINE_YEAST_REUSABLE_TAG))
             {
-                return new Badge(BadgePalette.Special(), "∞");
+                return Reusable();
             }
 
-            if (power >= 4)
+            if (item.identifier == "wine_superyeast" || YeastPower(item) >= 4)
             {
-                return new Badge(BadgePalette.ForDelta(2), powerText);
+                return Super();
             }
 
-            return new Badge(BadgePalette.ForDelta(1), powerText);
+            return Normal();
+        }
+
+        public static Badge Illegal()
+        {
+            return new Badge(BadgePalette.Special(), "x", "x");
+        }
+
+        public static Badge Normal()
+        {
+            return Badge.FromDelta(1);
+        }
+
+        public static Badge Super()
+        {
+            return Badge.FromDelta(2);
+        }
+
+        public static Badge Reusable()
+        {
+            return new Badge(BadgePalette.Special(), "\u221e", "\u221e");
+        }
+
+        public static Badge[] Legend()
+        {
+            return new[] { Illegal(), Normal(), Super(), Reusable() };
+        }
+
+        private static int YeastPower(GameItem item)
+        {
+            int power = item.GetTagReadonly(WineHelper.WINE_YEAST_POWER_INT).GetInt();
+            if (power < 1 || power > 8)
+            {
+                return 2;
+            }
+
+            return power;
         }
         #endregion
 
@@ -66,7 +95,7 @@ namespace ItemBadges
                 return;
             }
 
-            ModHelper.MoveItemToInventory(item);
+            BadgeSpawn.Place(item);
         }
         #endregion
     }

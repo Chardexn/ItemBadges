@@ -3,8 +3,8 @@
   <ID>item_badges</ID>
   <Name>物品角标</Name>
   <Author>kirkxia</Author>
-  <ModVersion>1.0</ModVersion>
-  <Description>在葡萄右下角显示品质角标（色块或数字），无需鉴定即可分辨种类。</Description>
+  <ModVersion>1.8</ModVersion>
+  <Description>在葡萄、酵母、水、成品酒、金属锭和化学品的角落显示品质角标。可切换标签纯度或真实纯度；真实档水需检测仪，化学品需成分光谱仪。</Description>
   <GameVersions>
     <Version>1.0.0.13</Version>
   </GameVersions>

@@ -1,21 +1,52 @@
 # key,文本
 cfg_style,角标样式
-cfg_style_tip,色块：右下角色块（带黑框）。数字：彩色数字。两者：色块加数字。
-cfg_preset,颜色预设
-cfg_preset_tip,光谱：红-灰-绿-蓝-紫-金（正档少时跳过蓝紫，最好一档仍是金）。简洁：红-灰-绿-金。0 永远是灰，负值都是红。
-cfg_preset_preview,色带预览
-opt_style_block,色块
+cfg_style_tip,色块：只显示颜色。数字：色块内像素字。箭头：空心三角表示高低，可循环酵母仍为 ∞。
+opt_style_block,仅色块
 opt_style_number,数字
-opt_style_both,色块+数字
-opt_preset_spectrum,光谱（红-灰-绿-蓝-紫-金）
-opt_preset_compact,简洁（红-灰-绿-金）
-cfg_block_size,色块大小（2–12）
-cfg_block_size_tip,直接输入像素边长。格子为 16px 时的值；外圈黑框另加 1px。
-cfg_font_size,数字大小（6–18）
-cfg_font_size_tip,直接输入字号。格子为 16px 时的值。
+opt_style_arrow,箭头
+cfg_scheme,配色方案
+cfg_scheme_tip,每种方案都是 7 色，正中为 0。默认：黑红灰白黄蓝绿。也可换成黑红灰白绿蓝黄，或灰白绿蓝紫金红。
+opt_scheme_ybg,黑红灰白黄蓝绿
+opt_scheme_gby,黑红灰白绿蓝黄
+opt_scheme_rarity,灰白绿蓝紫金红
+cfg_corner,角标位置
+cfg_corner_tip,角标画在物品格子的哪个角。
+opt_corner_tl,左上
+opt_corner_tr,右上
+opt_corner_bl,左下
+opt_corner_br,右下
+cfg_water_number,水质数值
+cfg_water_number_tip,水品质：相对基础水的档位（纯水 +2）。酿酒值：按酿酒水质分 W（纯水/优质均为 +1，沟渠 -3）。
+opt_water_quality,按水品质
+opt_water_wine,按酿酒值
+cfg_purity_mode,纯度显示
+cfg_purity_mode_tip,标签纯度：看贴纸上的档，不需要分析仪。真实纯度：看实际档，水要水质检测仪，化学品要成分光谱仪。
+opt_purity_label,标签纯度
+opt_purity_real,真实纯度
+cfg_legend,品质对照
+cfg_legend_scale,色阶
+cfg_legend_scale_tip,七色正中为 0。默认黑−3→红−2→深灰−1→白0→黄+1→蓝+2→绿+3。假酒/非法/可循环酵母用紫色。
+cfg_legend_berry,葡萄
+cfg_legend_berry_tip,需要放大镜。发霉 -1 / 欠熟·过熟 0 / 正常 +1 / 小颗 +2。数字是对酒分的实际贡献。
+cfg_legend_water,水
+cfg_legend_water_tip,标签档不需工具；真实档需要水质检测仪（AquaScan 或未用试纸）。由差到好：沟渠 / 铁锈 / 幽灵 / 基础 / 优质 / 纯水。数值随「水质数值」切换。
+cfg_legend_wine,酒
+cfg_legend_wine_tip,量产（酒分 3–4）为 0。难以下咽 ≤0 / 粗桶 1 / 手工 2 / 量产 3–4 / 臻品 5 / 琼浆 ≥6 / 假酒（紫）。
+cfg_legend_yeast,酵母
+cfg_legend_yeast_tip,非法（紫 x）/ 普通 +1 / 超级 +2 / 可循环（紫 ∞）。不需要工具。
+cfg_legend_ingot,金属锭
+cfg_legend_ingot_tip,标签档为假标签，真实档为实际纯度。极低 -2 / 低 -1 / 平均 0 / 高 +1 / 极高 +2 / 完美 +3。平均（Fair）为 0。
+cfg_legend_chem,化学品
+cfg_legend_chem_tip,标签档不需工具；真实档需要成分光谱仪。淀粉 -3 / 垃圾 -2 / 掺假 -1 / 街头 0 / 近制药 +1 / 制药 +2 / 实验室 +3。街头标准为 0。
 cfg_berry,显示葡萄品质
-cfg_berry_tip,葡萄隐藏品质。数字是对酒分的实际贡献：发霉 -1，欠熟/过熟 0，正常 +1，小颗 +2。
+cfg_berry_tip,需要放大镜。发霉 -1，欠熟/过熟 0，正常 +1，小颗 +2。
 cfg_yeast,显示酵母种类
-cfg_yeast_tip,普通酵母显示发酵速度；超级酵母更快；非法酵母酿假酒；可循环酵母显示 ∞。
+cfg_yeast_tip,普通 +1；超级 +2；非法（紫 x）；可循环（紫 ∞）。不需要工具。
 cfg_water,显示水纯净度
-cfg_water_tip,以基础水（98%）为 0。纯水 +2，优质 +1，基础 0，幽灵 -1，锈水 -2，沟水 -3。显示真实纯净度。
+cfg_water_tip,标签档不需工具，真实档需要水质检测仪。基础水为 0。可用「水质数值」在品质档和酿酒值 W 之间切换。
+cfg_wine,显示酒品质
+cfg_wine_tip,成品酒。量产为 0。不需要工具。假酒为紫色。
+cfg_ingot,显示金属锭纯度
+cfg_ingot_tip,金属锭。平均（Fair，售价±0%）为 0。极低 -2 / 低 -1 / 平均 0 / 高 +1 / 极高 +2 / 完美 +3。可按「纯度显示」看标签或真实纯度。
+cfg_chem,显示化学品纯度
+cfg_chem_tip,标签档不需工具；真实档需要成分光谱仪。街头标准（售价±0%）为 0。淀粉 -3 / 垃圾 -2 / 掺假 -1 / 街头 0 / 近制药 +1 / 制药 +2 / 实验室 +3。

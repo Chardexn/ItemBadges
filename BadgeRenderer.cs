@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ItemBadges
 {
     /// <summary>
-    /// 在 GameItemElement.middle（不随物品旋转）右下角画出色块和/或数字。
+    /// 在物品旋转后的视觉包围盒角落画角标（叠在图标之上）。
+    /// middle 仍是未旋转本地尺寸，要用 globalWidth/Height。
     /// </summary>
     internal static class BadgeRenderer
     {
@@ -40,6 +41,7 @@ namespace ItemBadges
 
         public static void RefreshAll()
         {
+            ToolAccess.Invalidate();
             PruneTracked();
             for (int i = 0; i < Tracked.Count; i++)
             {
@@ -85,35 +87,8 @@ namespace ItemBadges
             }
 
             Nodes nodes = GetOrCreate(element);
-            Badge badge = resolved.Value;
-            BadgeStyle style = BadgeConfig.Style;
-            bool showBlock = style == BadgeStyle.ColorBlock || style == BadgeStyle.Both;
-            bool showNumber = (style == BadgeStyle.Number || style == BadgeStyle.Both)
-                && !string.IsNullOrEmpty(badge.Text);
-
-            int px = Mathf.Max(1, UISettings.current.gridSize / 16);
-            if (showBlock)
-            {
-                LayoutSwatch(
-                    EnsureBorder(nodes, element.middle),
-                    EnsureBlock(nodes, element.middle),
-                    badge.Color,
-                    px);
-            }
-            else
-            {
-                HideImage(nodes.Border);
-                HideImage(nodes.Block);
-            }
-
-            if (showNumber)
-            {
-                LayoutNumber(EnsureText(nodes, element.middle), badge, px, showBlock);
-            }
-            else
-            {
-                HideText(nodes.Text);
-            }
+            TreeNodeRender image = EnsureImage(nodes, element.middle);
+            LayoutBadge(image, element, resolved.Value);
         }
         #endregion
 
@@ -132,170 +107,97 @@ namespace ItemBadges
             return created;
         }
 
-        private static TreeNodeRender EnsureBorder(Nodes nodes, TreeNodeRender parent)
+        private static TreeNodeRender EnsureImage(Nodes nodes, TreeNodeRender parent)
         {
-            if (nodes.Border == null)
+            if (nodes.Image == null)
             {
-                nodes.Border = CreateBlockNode(parent, "ItemBadgeBorder");
-            }
-
-            return nodes.Border;
-        }
-
-        private static TreeNodeRender EnsureBlock(Nodes nodes, TreeNodeRender parent)
-        {
-            if (nodes.Block == null)
-            {
-                nodes.Block = CreateBlockNode(parent, "ItemBadgeBlock");
-            }
-
-            return nodes.Block;
-        }
-
-        private static TreeNodeRender CreateBlockNode(TreeNodeRender parent, string name)
-        {
-            TreeNodeRender node = TreeNodeRender.Instantiate().SetParent(parent);
-            node.gameObject.name = name;
-            node.rectTransform.anchorMin = new Vector2(1f, 0f);
-            node.rectTransform.anchorMax = new Vector2(1f, 0f);
-            node.rectTransform.pivot = new Vector2(1f, 0f);
-            node.image.sprite = null;
-            node.image.raycastTarget = false;
-            return node;
-        }
-
-        private static TreeNodeRender EnsureText(Nodes nodes, TreeNodeRender parent)
-        {
-            if (nodes.Text == null)
-            {
-                nodes.Text = CreateTextNode(parent, "ItemBadgeText");
-            }
-
-            return nodes.Text;
-        }
-
-        private static TreeNodeRender CreateTextNode(TreeNodeRender parent, string name)
-        {
-            TreeNodeRender node = TreeNodeRender.InstantiateText().SetParent(parent);
-            node.gameObject.name = name;
-            node.rectTransform.anchorMin = new Vector2(1f, 0f);
-            node.rectTransform.anchorMax = new Vector2(1f, 0f);
-            node.rectTransform.pivot = new Vector2(1f, 0f);
-            if (node.image != null)
-            {
-                node.image.enabled = false;
+                TreeNodeRender node = TreeNodeRender.Instantiate().SetParent(parent);
+                node.gameObject.name = "ItemBadge";
                 node.image.raycastTarget = false;
+                node.image.type = Image.Type.Simple;
+                node.image.preserveAspect = true;
+                nodes.Image = node;
+            }
+            else if (parent != null && nodes.Image.rectTransform.parent != parent.rectTransform)
+            {
+                nodes.Image.SetParent(parent);
             }
 
-            node.text.raycastTarget = false;
-            node.text.alignment = TextAlignmentOptions.BottomRight;
-            node.text.enableWordWrapping = false;
-            node.text.overflowMode = TextOverflowModes.Overflow;
-            node.text.fontStyle = FontStyles.Normal;
-            node.text.outlineWidth = 0.08f;
-            node.text.outlineColor = Color.black;
-            return node;
+            return nodes.Image;
         }
         #endregion
 
         #region MARK: 布局
-        private static void LayoutSwatch(TreeNodeRender border, TreeNodeRender block, Color color, int px)
+        private static void LayoutBadge(TreeNodeRender node, GameItemElement element, Badge badge)
         {
-            int inner = Mathf.Max(1, BadgeConfig.BlockSize) * px;
-            int borderW = px;
-            int outer = inner + 2 * borderW;
-            int inset = InsetPx * px;
-            Vector2 outerPos = new Vector2(-inset, inset);
-            Vector2 innerPos = new Vector2(-inset - borderW, inset + borderW);
-
-            PlaceBlock(border, Color.black, outer, outerPos, visible: true);
-            PlaceBlock(block, color, inner, innerPos, visible: true);
+            int px = Mathf.Max(1, UISettings.current.gridSize / 16);
+            Sprite sprite = BadgeSprite.Create(badge, BadgeConfig.Style);
+            RectTransform rect = node.rectTransform;
+            rect.localEulerAngles = Vector3.zero;
+            rect.localScale = Vector3.one;
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(0f, 1f);
+            rect.SetAsLastSibling();
+            rect.sizeDelta = new Vector2(
+                sprite.rect.width * px,
+                sprite.rect.height * px);
+            ApplyVisualCorner(rect, element, px);
+            node.image.sprite = sprite;
+            node.image.color = Color.white;
+            node.image.enabled = true;
         }
 
-        private static void PlaceBlock(TreeNodeRender node, Color color, int size, Vector2 pos, bool visible)
+        private static void ApplyVisualCorner(RectTransform rect, GameItemElement element, int px)
         {
-            if (node == null)
+            int grid = UISettings.current.gridSize;
+            GridShape shape = element.modifiedShape;
+            float gw = grid;
+            float gh = grid;
+            if (shape != null)
             {
-                return;
+                gw = Mathf.Max(grid, shape.globalWidth * grid);
+                gh = Mathf.Max(grid, shape.globalHeight * grid);
             }
 
-            node.rectTransform.SetAsLastSibling();
-            node.rectTransform.sizeDelta = new Vector2(size, size);
-            node.rectTransform.anchoredPosition = pos;
-            node.image.color = color;
-            node.image.enabled = visible;
-        }
-
-        private static void LayoutNumber(TreeNodeRender text, Badge badge, int px, bool shiftLeftForBlock)
-        {
-            int inner = Mathf.Max(1, BadgeConfig.BlockSize) * px;
-            int borderW = px;
-            float fontSize = Mathf.Max(1f, BadgeConfig.FontSize * px);
-            float extraLeft = 0f;
-            if (shiftLeftForBlock)
+            float s = InsetPx * px;
+            Vector2 pivot;
+            Vector2 pos;
+            switch (BadgeConfig.Corner)
             {
-                extraLeft = inner + 2 * borderW + InsetPx * px;
+                case BadgeCorner.TopLeft:
+                    pivot = new Vector2(0f, 1f);
+                    pos = new Vector2(s, -s);
+                    break;
+                case BadgeCorner.TopRight:
+                    pivot = new Vector2(1f, 1f);
+                    pos = new Vector2(gw - s, -s);
+                    break;
+                case BadgeCorner.BottomLeft:
+                    pivot = new Vector2(0f, 0f);
+                    pos = new Vector2(s, -gh + s);
+                    break;
+                default:
+                    pivot = new Vector2(1f, 0f);
+                    pos = new Vector2(gw - s, -gh + s);
+                    break;
             }
 
-            Vector2 pos = new Vector2(-InsetPx * px - extraLeft, InsetPx * px);
-            Vector2 size = new Vector2(fontSize * 2.6f, fontSize * 1.5f);
-            PlaceText(text, badge.Text, fontSize, size, pos, visible: true);
-            if (text != null)
-            {
-                text.text.color = badge.Color;
-                text.rectTransform.SetAsLastSibling();
-            }
-        }
-
-        private static void PlaceText(
-            TreeNodeRender node,
-            string content,
-            float fontSize,
-            Vector2 size,
-            Vector2 pos,
-            bool visible)
-        {
-            if (node == null || node.text == null)
-            {
-                return;
-            }
-
-            node.rectTransform.sizeDelta = size;
-            node.rectTransform.anchoredPosition = pos;
-            node.text.fontSize = fontSize;
-            node.text.text = content;
-            node.text.enabled = visible;
+            rect.pivot = pivot;
+            rect.anchoredPosition = pos;
         }
 
         private static void Hide(Nodes nodes)
         {
-            HideImage(nodes.Border);
-            HideImage(nodes.Block);
-            HideText(nodes.Text);
-        }
-
-        private static void HideImage(TreeNodeRender node)
-        {
-            if (node != null && node.image != null)
+            if (nodes.Image != null && nodes.Image.image != null)
             {
-                node.image.enabled = false;
-            }
-        }
-
-        private static void HideText(TreeNodeRender node)
-        {
-            if (node != null && node.text != null)
-            {
-                node.text.enabled = false;
+                nodes.Image.image.enabled = false;
             }
         }
         #endregion
 
         private sealed class Nodes
         {
-            public TreeNodeRender Border;
-            public TreeNodeRender Block;
-            public TreeNodeRender Text;
+            public TreeNodeRender Image;
         }
     }
 }

@@ -1,7 +1,7 @@
 namespace ItemBadges
 {
     /// <summary>
-    /// 葡萄 BERRY_CONDITION_INT → 酒分实际贡献。
+    /// 葡萄 BERRY_CONDITION_INT → 酒分实际贡献。需要放大镜才显示。
     /// -2 发霉 → -1；-1 欠/过熟 → 0；1 正常 → +1；2 小颗 → +2。
     /// </summary>
     internal static class BerryBadge
@@ -23,6 +23,11 @@ namespace ItemBadges
                 return null;
             }
 
+            if (!ToolAccess.HasMagnifier())
+            {
+                return null;
+            }
+
             int condition = item.GetTagReadonly(WineHelper.BERRY_CONDITION_INT).GetInt();
             int delta;
             switch (condition)
@@ -39,8 +44,18 @@ namespace ItemBadges
                     return null;
             }
 
-            string text = delta > 0 ? "+" + delta : delta.ToString();
-            return new Badge(BadgePalette.ForDelta(delta), text);
+            return Badge.FromDelta(delta);
+        }
+
+        public static Badge[] Legend()
+        {
+            return new[]
+            {
+                Badge.FromDelta(-1),
+                Badge.FromDelta(0),
+                Badge.FromDelta(1),
+                Badge.FromDelta(2)
+            };
         }
         #endregion
 
@@ -63,7 +78,7 @@ namespace ItemBadges
             }
 
             WineHelper.SetBerryCondition(item, condition);
-            ModHelper.MoveItemToInventory(item);
+            BadgeSpawn.Place(item);
         }
         #endregion
     }

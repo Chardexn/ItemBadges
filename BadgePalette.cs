@@ -1,140 +1,85 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ItemBadges
 {
     /// <summary>
-    /// 颜色预设。0 永远是灰；负值共用红；正值按档位拉伸到绿→…→金。蓝/紫可缺省。
+    /// 三种配色，各 7 色，正中为 0。紫给特殊物品。
     /// </summary>
-    internal enum ColorPreset
-    {
-        Spectrum = 0,
-        Compact = 1
-    }
-
     internal static class BadgePalette
     {
-        private static readonly Color32 Gold = new Color32(204, 164, 40, 255);
+        public static readonly Color Black = new Color32(20, 18, 24, 255);
+        public static readonly Color Red = new Color32(224, 80, 80, 255);
+        public static readonly Color DarkGray = new Color32(96, 100, 108, 255);
+        public static readonly Color MidGray = new Color32(152, 156, 160, 255);
+        public static readonly Color White = new Color32(220, 216, 200, 255);
+        public static readonly Color Yellow = new Color32(240, 196, 72, 255);
+        public static readonly Color Green = new Color32(80, 208, 120, 255);
+        public static readonly Color Blue = new Color32(72, 156, 232, 255);
+        public static readonly Color Purple = new Color32(192, 140, 248, 255);
+        public static readonly Color Gold = new Color32(232, 180, 48, 255);
+        public static readonly Color InkDark = new Color32(24, 20, 28, 255);
+        public static readonly Color InkLight = new Color32(236, 232, 220, 255);
 
-        private static readonly Color[] SpectrumPositives =
-        {
-            Palette(RenderHandler.ColorPalette.Green),
-            Palette(RenderHandler.ColorPalette.Blue),
-            Palette(RenderHandler.ColorPalette.Purple),
-            Gold
-        };
+        public static ColorScheme? PreviewOverride;
 
-        private static readonly Color[] CompactPositives =
-        {
-            Palette(RenderHandler.ColorPalette.Green),
-            Gold
-        };
-
-        private static readonly Dictionary<ColorPreset, Sprite> PreviewCache = new Dictionary<ColorPreset, Sprite>();
+        public static ColorScheme Scheme =>
+            PreviewOverride ?? (BadgeConfig.SchemeEntry != null
+                ? BadgeConfig.SchemeEntry.Value
+                : ColorScheme.YellowBlueGreen);
 
         #region MARK: 取值
-        public static Color ForDelta(int delta, int maxPositive = 2)
+        public static Color ForDelta(int delta, ColorScheme? scheme = null)
         {
-            if (delta < 0)
+            Color[] ramp = Ramp(scheme ?? Scheme);
+            int index = 3 + delta;
+            if (index < 0)
             {
-                return Palette(RenderHandler.ColorPalette.Red);
+                index = 0;
+            }
+            else if (index >= ramp.Length)
+            {
+                index = ramp.Length - 1;
             }
 
-            if (delta == 0)
-            {
-                return Palette(RenderHandler.ColorPalette.Gray);
-            }
-
-            Color[] plus = Positives();
-            if (plus.Length == 1)
-            {
-                return plus[0];
-            }
-
-            int max = Mathf.Max(1, maxPositive);
-            int clamped = Mathf.Clamp(delta, 1, max);
-            int index = max == 1 ? 0 : (clamped - 1) * (plus.Length - 1) / (max - 1);
-            return plus[index];
+            return ramp[index];
         }
 
         public static Color Special()
         {
-            return BadgeConfig.Preset == ColorPreset.Spectrum
-                ? Palette(RenderHandler.ColorPalette.Purple)
-                : Palette(RenderHandler.ColorPalette.Green);
-        }
-        #endregion
-
-        #region MARK: 预览
-        public static Sprite PreviewSprite(ColorPreset preset)
-        {
-            if (PreviewCache.TryGetValue(preset, out Sprite cached) && cached != null)
-            {
-                return cached;
-            }
-
-            Color[] swatches = Swatches(preset);
-            const int cell = 12;
-            const int gap = 3;
-            const int border = 1;
-            int width = swatches.Length * cell + (swatches.Length - 1) * gap;
-            Texture2D texture = new Texture2D(width, cell, TextureFormat.RGBA32, false);
-            texture.filterMode = FilterMode.Point;
-            texture.wrapMode = TextureWrapMode.Clamp;
-
-            Color clear = new Color(0f, 0f, 0f, 0f);
-            Color black = Color.black;
-            for (int y = 0; y < cell; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    texture.SetPixel(x, y, clear);
-                }
-            }
-
-            for (int i = 0; i < swatches.Length; i++)
-            {
-                int x0 = i * (cell + gap);
-                for (int y = 0; y < cell; y++)
-                {
-                    for (int x = 0; x < cell; x++)
-                    {
-                        bool edge = x < border || y < border || x >= cell - border || y >= cell - border;
-                        texture.SetPixel(x0 + x, y, edge ? black : swatches[i]);
-                    }
-                }
-            }
-
-            texture.Apply(false);
-            Sprite sprite = Sprite.Create(texture, new Rect(0f, 0f, width, cell), new Vector2(0.5f, 0.5f), 100f);
-            PreviewCache[preset] = sprite;
-            return sprite;
+            return Purple;
         }
 
-        private static Color[] Swatches(ColorPreset preset)
+        public static int[] ScaleDeltas()
         {
-            Color[] plus = preset == ColorPreset.Compact ? CompactPositives : SpectrumPositives;
-            Color[] all = new Color[plus.Length + 2];
-            all[0] = Palette(RenderHandler.ColorPalette.Red);
-            all[1] = Palette(RenderHandler.ColorPalette.Gray);
-            for (int i = 0; i < plus.Length; i++)
+            return new[] { -3, -2, -1, 0, 1, 2, 3 };
+        }
+
+        public static Color InkFor(Color fill)
+        {
+            return Luminance(fill) < 0.38f ? InkLight : InkDark;
+        }
+
+        public static Color BorderFor(Color fill)
+        {
+            return InkDark;
+        }
+
+        private static Color[] Ramp(ColorScheme scheme)
+        {
+            switch (scheme)
             {
-                all[i + 2] = plus[i];
+                case ColorScheme.GreenBlueYellow:
+                    return new[] { Black, Red, DarkGray, White, Green, Blue, Yellow };
+                case ColorScheme.Rarity:
+                    return new[] { MidGray, White, Green, Blue, Purple, Gold, Red };
+                default:
+                    return new[] { Black, Red, DarkGray, White, Yellow, Blue, Green };
             }
-
-            return all;
-        }
-        #endregion
-
-        #region MARK: 预设表
-        private static Color[] Positives()
-        {
-            return BadgeConfig.Preset == ColorPreset.Compact ? CompactPositives : SpectrumPositives;
         }
 
-        private static Color Palette(RenderHandler.ColorPalette palette)
+        private static float Luminance(Color c)
         {
-            return RenderHandler.GetColorFromPalette(palette);
+            return 0.3f * c.r + 0.59f * c.g + 0.11f * c.b;
         }
         #endregion
     }

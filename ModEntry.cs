@@ -26,27 +26,36 @@ namespace ItemBadges
             BerryBadge.Register();
             YeastBadge.Register();
             WaterBadge.Register();
-            ModHelper.AddDebugFunction(
-                MOD_ID,
-                ModHelper.DEBUG_CATEGORY_SPAWN,
-                "Spawn Berry Samples (4 grades)",
-                BerryBadge.SpawnSamples);
-            ModHelper.AddDebugFunction(
-                MOD_ID,
-                ModHelper.DEBUG_CATEGORY_SPAWN,
-                "Spawn Yeast Samples (4 kinds)",
-                YeastBadge.SpawnSamples);
-            ModHelper.AddDebugFunction(
-                MOD_ID,
-                ModHelper.DEBUG_CATEGORY_SPAWN,
-                "Spawn Water Samples (6 grades)",
-                WaterBadge.SpawnSamples);
+            WineBadge.Register();
+            IngotBadge.Register();
+            ChemBadge.Register();
+            ModHook.OnGameLoadedNormal += OnGameLoaded;
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Berries", BerryBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Yeast", YeastBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Water", WaterBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Wine", WineBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Ingots", IngotBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Chems", ChemBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Dump Tools", DumpTools);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Refresh Badges", BadgeRenderer.RefreshAll);
         }
 
         public void OnDisable()
         {
+            ModHook.OnGameLoadedNormal -= OnGameLoaded;
             BadgeRegistry.Clear();
             ModHelper.RemoveDebugFunctions(MOD_ID);
+        }
+
+        private static void OnGameLoaded()
+        {
+            ToolAccess.Invalidate();
+            BadgeRenderer.RefreshAll();
+        }
+
+        private static void DumpTools()
+        {
+            Instance?.Log.Log("ToolAccess " + ToolAccess.Dump());
         }
         #endregion
 

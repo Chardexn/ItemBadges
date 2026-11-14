@@ -1,21 +1,52 @@
 # key,text
 cfg_style,Badge style
-cfg_style_tip,Swatch: corner block with a black outline. Number: colored score. Both: swatch and number.
-cfg_preset,Color preset
-cfg_preset_tip,Spectrum: red-gray-green-blue-purple-gold (blue/purple skipped when there are few positive grades; the best grade stays gold). Compact: red-gray-green-gold. 0 is always gray; all negatives are red.
-cfg_preset_preview,Preview
-opt_style_block,Swatch
-opt_style_number,Number
-opt_style_both,Swatch + number
-opt_preset_spectrum,Spectrum (red-gray-green-blue-purple-gold)
-opt_preset_compact,Compact (red-gray-green-gold)
-cfg_block_size,Swatch size (2–12)
-cfg_block_size_tip,Type the edge in pixels at 16px grid. A 1px black outline is added around it.
-cfg_font_size,Number size (6–18)
-cfg_font_size_tip,Type the font size at 16px grid.
+cfg_style_tip,Swatch: color only. Number: pixel digits in the box. Arrow: hollow chevrons; reusable yeast still shows infinity.
+opt_style_block,Swatch only
+opt_style_number,Numbers
+opt_style_arrow,Arrows
+cfg_scheme,Color scheme
+cfg_scheme_tip,Each scheme has 7 colors; the middle is 0. Default: black-red-gray-white-yellow-blue-green. Also green-blue-yellow positives, or gray-white-green-blue-purple-gold-red.
+opt_scheme_ybg,Black-red-gray-white-yellow-blue-green
+opt_scheme_gby,Black-red-gray-white-green-blue-yellow
+opt_scheme_rarity,Gray-white-green-blue-purple-gold-red
+cfg_corner,Badge corner
+cfg_corner_tip,Which corner of the item cell to draw the badge on.
+opt_corner_tl,Top left
+opt_corner_tr,Top right
+opt_corner_bl,Bottom left
+opt_corner_br,Bottom right
+cfg_water_number,Water numbers
+cfg_water_number_tip,Quality: grades relative to base water (pure +2). Wine score: brewing W (pure and high-quality both +1; gutterflow -3).
+opt_water_quality,By water grade
+opt_water_wine,By wine score
+cfg_purity_mode,Purity display
+cfg_purity_mode_tip,Label: the sticker grade, no analyser. Real: actual grade. Water needs a tester; chemicals need the composition spectrometer.
+opt_purity_label,Label purity
+opt_purity_real,Real purity
+cfg_legend,Quality legend
+cfg_legend_scale,Scale
+cfg_legend_scale_tip,Middle of the 7 colors is 0. Default black −3→red −2→dark gray −1→white 0→yellow +1→blue +2→green +3. Counterfeit / illegal / reusable yeast use purple.
+cfg_legend_berry,Berries
+cfg_legend_berry_tip,Requires a magnifier. Mold -1 / under- or overripe 0 / normal +1 / small +2. The number is the wine-score contribution.
+cfg_legend_water,Water
+cfg_legend_water_tip,Label needs no tool; real needs a water tester (AquaScan or an unused test strip). Worst to best: gutterflow / rust / ghost / base / high quality / pure. Digits follow Water numbers.
+cfg_legend_wine,Wine
+cfg_legend_wine_tip,Production (score 3–4) is 0. Undrinkable ≤0 / bucket 1 / homebrew 2 / production 3–4 / reserve 5 / vintage ≥6 / counterfeit (purple).
+cfg_legend_yeast,Yeast
+cfg_legend_yeast_tip,Illegal (purple x) / normal +1 / super +2 / reusable (purple infinity). No tool required.
+cfg_legend_ingot,Ingots
+cfg_legend_ingot_tip,Label is the fake tag; real is actual purity. Very low -2 / low -1 / fair 0 / high +1 / very high +2 / perfect +3. Fair is 0.
+cfg_legend_chem,Chemicals
+cfg_legend_chem_tip,Label needs no tool; real needs the composition spectrometer. Starch -3 / junk -2 / cut -1 / street 0 / near-pharma +1 / pharma +2 / lab +3. Street standard is 0.
 cfg_berry,Show berry quality
-cfg_berry_tip,"Hidden berry quality. The number is the wine-score contribution: mold -1, under/overripe 0, normal +1, small +2."
+cfg_berry_tip,Requires a magnifier. Mold -1, under/overripe 0, normal +1, small +2.
 cfg_yeast,Show yeast type
-cfg_yeast_tip,Normal yeast shows ferment speed; super yeast is faster; illegal yeast makes counterfeit wine; reusable yeast shows infinity.
+cfg_yeast_tip,Normal +1; super +2; illegal (purple x); reusable (purple infinity). No tool required.
 cfg_water,Show water purity
-cfg_water_tip,"Base water (98%) is 0. Pure +2, high quality +1, base 0, ghost -1, rust -2, gutterflow -3. Uses real purity."
+cfg_water_tip,Label needs no tool; real needs a water tester. Base water is 0. Switch Water numbers between grade and brewing W.
+cfg_wine,Show wine quality
+cfg_wine_tip,Finished wine. Production is 0. No tool required. Counterfeit is purple.
+cfg_ingot,Show ingot purity
+cfg_ingot_tip,Metal ingots. Fair (sale price ±0%) is 0. Very low -2 / low -1 / fair 0 / high +1 / very high +2 / perfect +3. Purity display switches label vs real.
+cfg_chem,Show chemical purity
+cfg_chem_tip,Label needs no tool; real needs the composition spectrometer. Street standard (sale price ±0%) is 0. Starch -3 / junk -2 / cut -1 / street 0 / near-pharma +1 / pharma +2 / lab +3.

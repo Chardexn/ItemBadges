@@ -1,8 +1,8 @@
 namespace ItemBadges
 {
     /// <summary>
-    /// 容器真实纯净度，基础水（98%）为 0。
-    /// 纯水 +2、优质 +1、基础 0、幽灵 -1、锈水 -2、沟水 -3。
+    /// 容器纯净度。标签档不需工具；真实档需要 AquaScan 或未用试纸。
+    /// 数值可按水品质档（基础水=0）或酿酒水质分 W 显示。
     /// </summary>
     internal static class WaterBadge
     {
@@ -35,10 +35,64 @@ namespace ItemBadges
                 return null;
             }
 
-            int index = WaterFeatureHelper.GetPurityArrayIndex(WaterHelper.GetWaterPurity(item));
-            int delta = BasePurityIndex - index;
-            string text = delta > 0 ? "+" + delta : delta.ToString();
-            return new Badge(BadgePalette.ForDelta(delta), text);
+            int purity;
+            if (BadgeConfig.UseRealPurity)
+            {
+                if (!ToolAccess.HasWaterTester())
+                {
+                    return null;
+                }
+
+                purity = WaterHelper.GetWaterPurity(item);
+            }
+            else
+            {
+                purity = LabeledPurity(item);
+            }
+
+            int index = WaterFeatureHelper.GetPurityArrayIndex(purity);
+            return FromIndex(index, BadgeConfig.WaterNumbers);
+        }
+
+        public static Badge FromIndex(int index, WaterNumberMode mode)
+        {
+            return Badge.FromDelta(DeltaForIndex(index, mode));
+        }
+
+        public static Badge[] Legend(WaterNumberMode? mode = null)
+        {
+            WaterNumberMode use = mode ?? BadgeConfig.WaterNumbers;
+            Badge[] badges = new Badge[6];
+            for (int i = 5; i >= 0; i--)
+            {
+                badges[5 - i] = FromIndex(i, use);
+            }
+
+            return badges;
+        }
+
+        private static int LabeledPurity(GameItem item)
+        {
+            ItemFeature feature = item.FindItemFeatureByCategory("CATEGORY_WATER_PURITY");
+            if (feature != null && feature.customIntValue1 > 0)
+            {
+                return feature.customIntValue1;
+            }
+
+            return WaterHelper.GetWaterPurity(item);
+        }
+
+        private static readonly int[] WineW = { 1, 1, 0, -1, -2, -3 };
+
+        private static int DeltaForIndex(int index, WaterNumberMode mode)
+        {
+            int clamped = index < 0 ? 0 : (index > 5 ? 5 : index);
+            if (mode == WaterNumberMode.WineScore)
+            {
+                return WineW[clamped];
+            }
+
+            return BasePurityIndex - clamped;
         }
         #endregion
 
@@ -61,7 +115,7 @@ namespace ItemBadges
             }
 
             WaterHelper.AddWater(jug, grade);
-            ModHelper.MoveItemToInventory(jug);
+            BadgeSpawn.Place(jug);
         }
         #endregion
     }

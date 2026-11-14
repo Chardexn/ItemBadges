@@ -1,12 +1,37 @@
-using UnityEngine;
-
 namespace ItemBadges
 {
     internal enum BadgeStyle
     {
         ColorBlock = 0,
         Number = 1,
-        Both = 2
+        Arrow = 2
+    }
+
+    internal enum BadgeCorner
+    {
+        TopLeft = 0,
+        TopRight = 1,
+        BottomLeft = 2,
+        BottomRight = 3
+    }
+
+    internal enum WaterNumberMode
+    {
+        Quality = 0,
+        WineScore = 1
+    }
+
+    internal enum PurityMode
+    {
+        Label = 0,
+        Real = 1
+    }
+
+    internal enum ColorScheme
+    {
+        YellowBlueGreen = 0,
+        GreenBlueYellow = 1,
+        Rarity = 2
     }
 
     /// <summary>
@@ -14,26 +39,33 @@ namespace ItemBadges
     /// </summary>
     internal static class BadgeConfig
     {
-        public const int BlockSizeMin = 2;
-        public const int BlockSizeMax = 12;
-        public const int FontSizeMin = 6;
-        public const int FontSizeMax = 18;
-
         public static ConfigEntry<BadgeStyle> StyleEntry { get; private set; }
-        public static ConfigEntry<ColorPreset> PresetEntry { get; private set; }
-        public static ConfigEntry<int> BlockSizeEntry { get; private set; }
-        public static ConfigEntry<int> FontSizeEntry { get; private set; }
+        public static ConfigEntry<ColorScheme> SchemeEntry { get; private set; }
+        public static ConfigEntry<BadgeCorner> CornerEntry { get; private set; }
+        public static ConfigEntry<WaterNumberMode> WaterNumberEntry { get; private set; }
+        public static ConfigEntry<PurityMode> PurityModeEntry { get; private set; }
         public static ConfigEntry<bool> BerryEnabledEntry { get; private set; }
         public static ConfigEntry<bool> YeastEnabledEntry { get; private set; }
         public static ConfigEntry<bool> WaterEnabledEntry { get; private set; }
+        public static ConfigEntry<bool> WineEnabledEntry { get; private set; }
+        public static ConfigEntry<bool> IngotEnabledEntry { get; private set; }
+        public static ConfigEntry<bool> ChemEnabledEntry { get; private set; }
 
-        public static BadgeStyle Style => StyleEntry != null ? StyleEntry.Value : BadgeStyle.ColorBlock;
-        public static ColorPreset Preset => PresetEntry != null ? PresetEntry.Value : ColorPreset.Spectrum;
-        public static int BlockSize => Clamp(BlockSizeEntry, 4, BlockSizeMin, BlockSizeMax);
-        public static int FontSize => Clamp(FontSizeEntry, 9, FontSizeMin, FontSizeMax);
+        public static BadgeStyle Style => StyleEntry != null ? StyleEntry.Value : BadgeStyle.Number;
+        public static ColorScheme Scheme =>
+            SchemeEntry != null ? SchemeEntry.Value : ColorScheme.YellowBlueGreen;
+        public static BadgeCorner Corner => CornerEntry != null ? CornerEntry.Value : BadgeCorner.BottomRight;
+        public static WaterNumberMode WaterNumbers =>
+            WaterNumberEntry != null ? WaterNumberEntry.Value : WaterNumberMode.Quality;
+        public static PurityMode PurityDisplay =>
+            PurityModeEntry != null ? PurityModeEntry.Value : PurityMode.Label;
+        public static bool UseRealPurity => PurityDisplay == PurityMode.Real;
         public static bool BerryEnabled => BerryEnabledEntry == null || BerryEnabledEntry.Value;
         public static bool YeastEnabled => YeastEnabledEntry == null || YeastEnabledEntry.Value;
         public static bool WaterEnabled => WaterEnabledEntry == null || WaterEnabledEntry.Value;
+        public static bool WineEnabled => WineEnabledEntry == null || WineEnabledEntry.Value;
+        public static bool IngotEnabled => IngotEnabledEntry == null || IngotEnabledEntry.Value;
+        public static bool ChemEnabled => ChemEnabledEntry == null || ChemEnabledEntry.Value;
 
         #region MARK: 定义
         public static void Define()
@@ -43,37 +75,38 @@ namespace ItemBadges
 
             StyleEntry = Bind(cfg.DefineEnum(
                 "style",
-                BadgeStyle.ColorBlock,
+                BadgeStyle.Number,
                 section,
                 () => ModEntry.L("cfg_style"),
                 () => ModEntry.L("cfg_style_tip")));
 
-            PresetEntry = Bind(cfg.DefineEnum(
-                "color_preset",
-                ColorPreset.Spectrum,
+            SchemeEntry = Bind(cfg.DefineEnum(
+                "color_scheme",
+                ColorScheme.YellowBlueGreen,
                 section,
-                () => ModEntry.L("cfg_preset"),
-                () => ModEntry.L("cfg_preset_tip")));
+                () => ModEntry.L("cfg_scheme"),
+                () => ModEntry.L("cfg_scheme_tip")));
 
-            BlockSizeEntry = BindSize(
-                cfg.Define(
-                    "block_size",
-                    4,
-                    section,
-                    () => ModEntry.L("cfg_block_size"),
-                    tooltip: () => ModEntry.L("cfg_block_size_tip")),
-                BlockSizeMin,
-                BlockSizeMax);
+            CornerEntry = Bind(cfg.DefineEnum(
+                "badge_corner",
+                BadgeCorner.BottomRight,
+                section,
+                () => ModEntry.L("cfg_corner"),
+                () => ModEntry.L("cfg_corner_tip")));
 
-            FontSizeEntry = BindSize(
-                cfg.Define(
-                    "font_size",
-                    9,
-                    section,
-                    () => ModEntry.L("cfg_font_size"),
-                    tooltip: () => ModEntry.L("cfg_font_size_tip")),
-                FontSizeMin,
-                FontSizeMax);
+            WaterNumberEntry = Bind(cfg.DefineEnum(
+                "water_number",
+                WaterNumberMode.Quality,
+                section,
+                () => ModEntry.L("cfg_water_number"),
+                () => ModEntry.L("cfg_water_number_tip")));
+
+            PurityModeEntry = Bind(cfg.DefineEnum(
+                "purity_mode",
+                PurityMode.Label,
+                section,
+                () => ModEntry.L("cfg_purity_mode"),
+                () => ModEntry.L("cfg_purity_mode_tip")));
 
             BerryEnabledEntry = Bind(cfg.Define(
                 "berry_enabled",
@@ -95,6 +128,27 @@ namespace ItemBadges
                 section,
                 () => ModEntry.L("cfg_water"),
                 () => ModEntry.L("cfg_water_tip")));
+
+            WineEnabledEntry = Bind(cfg.Define(
+                "wine_enabled",
+                true,
+                section,
+                () => ModEntry.L("cfg_wine"),
+                () => ModEntry.L("cfg_wine_tip")));
+
+            IngotEnabledEntry = Bind(cfg.Define(
+                "ingot_enabled",
+                true,
+                section,
+                () => ModEntry.L("cfg_ingot"),
+                () => ModEntry.L("cfg_ingot_tip")));
+
+            ChemEnabledEntry = Bind(cfg.Define(
+                "chem_enabled",
+                true,
+                section,
+                () => ModEntry.L("cfg_chem"),
+                () => ModEntry.L("cfg_chem_tip")));
         }
         #endregion
 
@@ -103,28 +157,6 @@ namespace ItemBadges
         {
             entry.OnChanged += _ => BadgeRenderer.RefreshAll();
             return entry;
-        }
-
-        private static ConfigEntry<int> BindSize(ConfigEntry<int> entry, int min, int max)
-        {
-            entry.OnChanged += value =>
-            {
-                int clamped = Mathf.Clamp(value, min, max);
-                if (clamped != value)
-                {
-                    entry.Set(clamped);
-                    return;
-                }
-
-                BadgeRenderer.RefreshAll();
-            };
-            return entry;
-        }
-
-        private static int Clamp(ConfigEntry<int> entry, int fallback, int min, int max)
-        {
-            int value = entry != null ? entry.Value : fallback;
-            return Mathf.Clamp(value, min, max);
         }
         #endregion
     }
