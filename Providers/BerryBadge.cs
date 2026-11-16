@@ -1,7 +1,7 @@
 namespace ItemBadges
 {
     /// <summary>
-    /// 葡萄 BERRY_CONDITION_INT → 酒分实际贡献。需要放大镜才显示。
+    /// 葡萄 / 酿酒果实 BERRY_CONDITION_INT → 酒分实际贡献。需要放大镜。
     /// -2 发霉 → -1；-1 欠/过熟 → 0；1 正常 → +1；2 小颗 → +2。
     /// </summary>
     internal static class BerryBadge
@@ -18,7 +18,13 @@ namespace ItemBadges
         #region MARK: 映射
         public static Badge? TryGet(GameItem item)
         {
-            if (!BadgeConfig.BerryEnabled || item == null || !item.IsTag(WineHelper.BERRY_TAG))
+            if (!BadgeConfig.BerryEnabled || item == null || item.identifier == PulpBadge.ItemId)
+            {
+                return null;
+            }
+
+            // 原版葡萄是 BERRY_TAG；巨大果往往只有 BERRY_CONDITION_INT。
+            if (!item.IsTag(WineHelper.BERRY_TAG) && !item.IsTag(WineHelper.BERRY_CONDITION_INT))
             {
                 return null;
             }
@@ -29,22 +35,25 @@ namespace ItemBadges
             }
 
             int condition = item.GetTagReadonly(WineHelper.BERRY_CONDITION_INT).GetInt();
-            int delta;
+            int delta = Contribution(condition) ?? condition;
+            return Badge.FromDelta(delta);
+        }
+
+        public static int? Contribution(int condition)
+        {
             switch (condition)
             {
                 case 2:
                 case 1:
-                    delta = condition;
-                    break;
+                    return condition;
+                case 0:
+                    return 0;
                 case -1:
                 case -2:
-                    delta = condition + 1;
-                    break;
+                    return condition + 1;
                 default:
                     return null;
             }
-
-            return Badge.FromDelta(delta);
         }
 
         public static Badge[] Legend()

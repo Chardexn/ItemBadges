@@ -7,6 +7,10 @@ namespace ItemBadges
     /// </summary>
     internal static class BadgeSpawn
     {
+        public const string ShowcaseVanillaTag = "IB_SHOWCASE_VANILLA";
+        public const string ShowcaseModTag = "IB_SHOWCASE_MOD";
+        public const string ShowcaseGunTag = "IB_SHOWCASE_GUN";
+
         #region MARK: 放置
         public static void Place(GameItem item)
         {
@@ -18,7 +22,7 @@ namespace ItemBadges
 
             try
             {
-                ModHelper.SetItemOwnerShip(item, true);
+                Own(item);
                 if (EmporiumEntry.Instance != null)
                 {
                     GraphUtils.EmporiumTryAdd(item);
@@ -51,6 +55,72 @@ namespace ItemBadges
             catch (Exception ex)
             {
                 ModEntry.Instance?.Log.Error("BadgeSpawn.Place failed: " + ex);
+            }
+        }
+
+        public static GameItem Own(GameItem item, string showcaseTag = null)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            ModHelper.SetItemOwnerShip(item, true);
+            if (!string.IsNullOrEmpty(showcaseTag))
+            {
+                item.EnableTag(showcaseTag);
+            }
+
+            return item;
+        }
+
+        public static void Detach(GameItem item)
+        {
+            if (item == null || item.parentInventory == null)
+            {
+                return;
+            }
+
+            try
+            {
+                item.parentInventory.Expel(item);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        public static bool PlaceInto(GraphNodeStorage target, GameItem item)
+        {
+            if (item == null)
+            {
+                return false;
+            }
+
+            Own(item);
+            Detach(item);
+            if (target != null && GraphUtils.TryAcceptAll(target, item) > 0)
+            {
+                return item.parentInventory != null;
+            }
+
+            return false;
+        }
+
+        public static void Discard(GameItem item)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            Detach(item);
+            try
+            {
+                item.Destroy();
+            }
+            catch (Exception)
+            {
             }
         }
         #endregion

@@ -1,13 +1,12 @@
 namespace ItemBadges
 {
     /// <summary>
-    /// 成品酒：量产（酒分 3–4）为 0。不需要工具。假酒用特殊紫。
-    /// ≤0 -3，1 -2，2 -1，3–4 0，5 +1，≥6 +2。
+    /// 酿造中与成品酒：自酿（酒分 2）为 0，琼浆（6）为 +3。假酒用特殊紫。
     /// </summary>
     internal static class WineBadge
     {
         public const string Key = "wine";
-        private const int BaselineTier = 3;
+        private const int HomebrewScore = 2;
 
         #region MARK: 注册
         public static void Register()
@@ -19,7 +18,7 @@ namespace ItemBadges
         #region MARK: 映射
         public static Badge? TryGet(GameItem item)
         {
-            if (!BadgeConfig.WineEnabled || item == null || !WineHelper.IsFinishedWine(item))
+            if (!BadgeConfig.WineEnabled || item == null || !WineHelper.IsFermentingOrFinished(item))
             {
                 return null;
             }
@@ -29,8 +28,22 @@ namespace ItemBadges
                 return Counterfeit();
             }
 
-            int delta = WineHelper.GetWineQualityTier(item) - BaselineTier;
-            return Badge.FromDelta(delta);
+            int score = item.GetTagReadonly(WineHelper.WINE_SCORE_INT).GetInt();
+            return FromScore(score, BadgeConfig.WineNumbers);
+        }
+
+        public static Badge FromScore(int score, WineNumberMode mode)
+        {
+            if (mode == WineNumberMode.Score)
+            {
+                int colorDelta = score - HomebrewScore;
+                return new Badge(
+                    BadgePalette.ForDelta(colorDelta),
+                    Badge.FormatDelta(score),
+                    Badge.ArrowForDelta(colorDelta));
+            }
+
+            return Badge.FromDelta(GradeDelta(score));
         }
 
         public static Badge Counterfeit()
@@ -38,18 +51,60 @@ namespace ItemBadges
             return new Badge(BadgePalette.Special(), "x", "x");
         }
 
-        public static Badge[] Legend()
+        public static Badge[] Legend(WineNumberMode? mode = null)
         {
+            WineNumberMode use = mode ?? BadgeConfig.WineNumbers;
+            if (use == WineNumberMode.Score)
+            {
+                return new[]
+                {
+                    FromScore(0, use),
+                    FromScore(1, use),
+                    FromScore(2, use),
+                    FromScore(4, use),
+                    FromScore(5, use),
+                    FromScore(6, use),
+                    FromScore(7, use),
+                    Counterfeit()
+                };
+            }
+
             return new[]
             {
-                Badge.FromDelta(-3),
                 Badge.FromDelta(-2),
                 Badge.FromDelta(-1),
                 Badge.FromDelta(0),
                 Badge.FromDelta(1),
                 Badge.FromDelta(2),
+                Badge.FromDelta(3),
+                Badge.FromDelta(4),
                 Counterfeit()
             };
+        }
+
+        internal static int GradeDelta(int score)
+        {
+            if (score <= 2)
+            {
+                return score - HomebrewScore;
+            }
+
+            if (score <= 4)
+            {
+                return 1;
+            }
+
+            if (score == 5)
+            {
+                return 2;
+            }
+
+            if (score == 6)
+            {
+                return 3;
+            }
+
+            return score - 3;
         }
         #endregion
 
@@ -62,7 +117,9 @@ namespace ItemBadges
             Spawn(3, false);
             Spawn(5, false);
             Spawn(6, false);
+            Spawn(7, false);
             Spawn(3, true);
+            SpawnFermenting(5);
         }
 
         private static void Spawn(int score, bool counterfeit)
@@ -74,6 +131,21 @@ namespace ItemBadges
                 return;
             }
 
+            BadgeSpawn.Place(item);
+        }
+
+        private static void SpawnFermenting(int score)
+        {
+            GameItem item = ModHelper.SpawnItem("wine_bottle");
+            if (item == null)
+            {
+                ModEntry.Instance?.Log.Warning("wine fermenting spawn failed.");
+                return;
+            }
+
+            item.ModifyTag(WineHelper.WINE_CONTAINER_STATE, s => s.Enable().SetInt(1));
+            item.ModifyTag(WineHelper.WINE_SCORE_INT, s => s.Enable().SetInt(score));
+            item.SetSpriteAndShape(WineHelper.WINE_SPRITE_ATLAS, "wine_fermenting");
             BadgeSpawn.Place(item);
         }
         #endregion

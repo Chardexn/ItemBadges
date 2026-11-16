@@ -1,10 +1,12 @@
+using System;
 using System.Reflection;
 using HarmonyLib;
 
 namespace ItemBadges
 {
     /// <summary>
-    /// 物品刷新、旋转与拖拽显隐后重绘角标。拿起/放下检测仪、放大镜，或改走私者暗格时刷新全部。
+    /// 物品刷新、旋转与拖拽显隐后重绘角标。纯度/净化改写后补一次 Apply。
+    /// 拿起/放下检测仪、放大镜，或改走私者暗格时刷新全部。
     /// </summary>
     [HarmonyPatch]
     internal static class ValidateSelectLockedPatch
@@ -67,6 +69,7 @@ namespace ItemBadges
     {
         private static void Postfix(GameSlotInventory __instance, GameItem item)
         {
+            BadgeRenderer.ApplyItem(item);
             if (IsToolboxSlot(__instance) || ToolAccess.IsTool(item))
             {
                 ToolAccess.Invalidate();
@@ -99,7 +102,13 @@ namespace ItemBadges
     {
         private static void Postfix(GameGridInventory __instance, GameItem item, bool __result)
         {
-            if (__result && ShouldRefresh(__instance, item))
+            if (!__result)
+            {
+                return;
+            }
+
+            BadgeRenderer.ApplyItem(item);
+            if (ShouldRefresh(__instance, item))
             {
                 ToolAccess.Invalidate();
                 BadgeRenderer.RefreshAll();
@@ -132,6 +141,51 @@ namespace ItemBadges
                 ToolAccess.Invalidate();
                 BadgeRenderer.RefreshAll();
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(ChemicalProductHelper), nameof(ChemicalProductHelper.GradeProduct))]
+    internal static class GradeProductPatch
+    {
+        private static void Postfix(GameItem item)
+        {
+            BadgeRenderer.ApplyItem(item);
+        }
+    }
+
+    [HarmonyPatch(typeof(ChemicalProductHelper), nameof(ChemicalProductHelper.SetPurityFeature), new Type[] { typeof(GameItem), typeof(ItemCondition), typeof(ItemCondition) })]
+    internal static class SetPurityFeaturePatch
+    {
+        private static void Postfix(GameItem item)
+        {
+            BadgeRenderer.ApplyItem(item);
+        }
+    }
+
+    [HarmonyPatch(typeof(MachinePurifier), nameof(MachinePurifier.PurifyContainer))]
+    internal static class PurifyContainerPatch
+    {
+        private static void Postfix(GameItem waterContainer)
+        {
+            BadgeRenderer.ApplyItem(waterContainer);
+        }
+    }
+
+    [HarmonyPatch(typeof(WaterFeatureHelper), nameof(WaterFeatureHelper.SetPresumedPurity))]
+    internal static class SetPresumedPurityPatch
+    {
+        private static void Postfix(GameItem gameItem)
+        {
+            BadgeRenderer.ApplyItem(gameItem);
+        }
+    }
+
+    [HarmonyPatch(typeof(GunHelper), nameof(GunHelper.SetEquipmentCondition))]
+    internal static class SetEquipmentConditionPatch
+    {
+        private static void Postfix(GameItem item)
+        {
+            BadgeRenderer.ApplyItem(item);
         }
     }
 }

@@ -1,6 +1,15 @@
 # key,文本
+cfg_section_appearance,外观
+cfg_section_legend,对照
+cfg_section_berry,葡萄
+cfg_section_yeast,酵母
+cfg_section_water,水
+cfg_section_wine,酒
+cfg_section_gun,武器
+cfg_section_ingot,金属锭
+cfg_section_chem,化学品
 cfg_style,角标样式
-cfg_style_tip,色块：只显示颜色。数字：色块内像素字。箭头：空心三角表示高低，可循环酵母仍为 ∞。
+cfg_style_tip,色块：只显示颜色。数字：色块内像素字。箭头：空心三角表示高低。
 opt_style_block,仅色块
 opt_style_number,数字
 opt_style_arrow,箭头
@@ -15,37 +24,51 @@ opt_corner_tl,左上
 opt_corner_tr,右上
 opt_corner_bl,左下
 opt_corner_br,右下
+cfg_legend_expanded,显示品质对照
+cfg_legend_expanded_tip,打开后在本页画出各类物品的色阶图例。关掉可缩短设置页。
 cfg_water_number,水质数值
 cfg_water_number_tip,水品质：相对基础水的档位（纯水 +2）。酿酒值：按酿酒水质分 W（纯水/优质均为 +1，沟渠 -3）。
 opt_water_quality,按水品质
 opt_water_wine,按酿酒值
 cfg_purity_mode,纯度显示
-cfg_purity_mode_tip,标签纯度：看贴纸上的档，不需要分析仪。真实纯度：看实际档，水要水质检测仪，化学品要成分光谱仪。
+cfg_purity_mode_tip,标签纯度：看贴纸上的档，不需要分析仪。真实纯度：看实际档。水要水质检测仪，化学品要成分光谱仪；金属锭和枪械成色也读这项。
 opt_purity_label,标签纯度
 opt_purity_real,真实纯度
+cfg_wine_number,酒品质数值
+cfg_wine_number_tip,档位：自酿（2 分）为 0，琼浆（6 分）+3；更高分同色、数字继续加。评分：显示酒分原值。
+opt_wine_grade,按档位
+opt_wine_score,按评分
+cfg_yeast_number,酵母数值
+cfg_yeast_number_tip,酿酒值：任意合法酵母都是 +1，颜色按品级。发酵天数：每晚减酵母强度，普通约 2 天，超级约 1 天。非法酵母红色。
+opt_yeast_score,酿酒值
+opt_yeast_days,发酵天数
 cfg_legend,品质对照
 cfg_legend_scale,色阶
-cfg_legend_scale_tip,七色正中为 0。默认黑−3→红−2→深灰−1→白0→黄+1→蓝+2→绿+3。假酒/非法/可循环酵母用紫色。
+cfg_legend_scale_tip,七色正中为 0。默认黑−3→红−2→深灰−1→白0→黄+1→蓝+2→绿+3。假酒/可循环酵母用紫色；非法酵母用红色。
 cfg_legend_berry,葡萄
-cfg_legend_berry_tip,需要放大镜。发霉 -1 / 欠熟·过熟 0 / 正常 +1 / 小颗 +2。数字是对酒分的实际贡献。
+cfg_legend_berry_tip,需要放大镜。发霉 -1 / 欠熟·过熟 0 / 正常 +1 / 小颗 +2。数字是对酒分的实际贡献。酿酒拓展果实、巨大果和原浆也走这项。
 cfg_legend_water,水
 cfg_legend_water_tip,标签档不需工具；真实档需要水质检测仪（AquaScan 或未用试纸）。由差到好：沟渠 / 铁锈 / 幽灵 / 基础 / 优质 / 纯水。数值随「水质数值」切换。
 cfg_legend_wine,酒
-cfg_legend_wine_tip,量产（酒分 3–4）为 0。难以下咽 ≤0 / 粗桶 1 / 手工 2 / 量产 3–4 / 臻品 5 / 琼浆 ≥6 / 假酒（紫）。
+cfg_legend_wine_tip,档位：自酿（2 分）为 0，琼浆（6 分）+3；更高分同色数字继续加。评分显示酒分累加和。假酒为紫 x。
 cfg_legend_yeast,酵母
-cfg_legend_yeast_tip,非法（紫 x）/ 普通 +1 / 超级 +2 / 可循环（紫 ∞）。不需要工具。
+cfg_legend_yeast_tip,数字为酿酒值 +1 或发酵天数。普通黄/绿 +1 色；超级 +2 色；可循环紫；非法红。不需要工具。
+cfg_legend_gun,枪械
+cfg_legend_gun_tip,只标枪械（含电击枪）。差 -2 / 一般 -1 / 良好 0 / 极佳 +1 / 新品 +2。标签档与真实档跟「纯度显示」。不需要工具。冷兵器不标。
 cfg_legend_ingot,金属锭
 cfg_legend_ingot_tip,标签档为假标签，真实档为实际纯度。极低 -2 / 低 -1 / 平均 0 / 高 +1 / 极高 +2 / 完美 +3。平均（Fair）为 0。
 cfg_legend_chem,化学品
 cfg_legend_chem_tip,标签档不需工具；真实档需要成分光谱仪。淀粉 -3 / 垃圾 -2 / 掺假 -1 / 街头 0 / 近制药 +1 / 制药 +2 / 实验室 +3。街头标准为 0。
 cfg_berry,显示葡萄品质
-cfg_berry_tip,需要放大镜。发霉 -1，欠熟/过熟 0，正常 +1，小颗 +2。
+cfg_berry_tip,需要放大镜。发霉 -1，欠熟/过熟 0，正常 +1，小颗 +2。酿酒拓展果实、巨大果和原浆也走这个开关。
 cfg_yeast,显示酵母种类
-cfg_yeast_tip,普通 +1；超级 +2；非法（紫 x）；可循环（紫 ∞）。不需要工具。
+cfg_yeast_tip,任意酵母酿酒值都是 +1；颜色区分普通 / 超级 / 可循环（紫）/ 非法（红）。可改显示发酵天数。不需要工具。
 cfg_water,显示水纯净度
 cfg_water_tip,标签档不需工具，真实档需要水质检测仪。基础水为 0。可用「水质数值」在品质档和酿酒值 W 之间切换。
 cfg_wine,显示酒品质
-cfg_wine_tip,成品酒。量产为 0。不需要工具。假酒为紫色。
+cfg_wine_tip,酿造中与成品酒。自酿为 0，琼浆 +3。不需要工具。假酒为紫色。兼容酿酒拓展配方酒。
+cfg_gun,显示枪械成色
+cfg_gun_tip,只标枪械（含电击枪）。良好（属性±0%）为 0。差 -2 / 一般 -1 / 良好 0 / 极佳 +1 / 新品 +2。成色档跟「纯度显示」。不需要工具。
 cfg_ingot,显示金属锭纯度
 cfg_ingot_tip,金属锭。平均（Fair，售价±0%）为 0。极低 -2 / 低 -1 / 平均 0 / 高 +1 / 极高 +2 / 完美 +3。可按「纯度显示」看标签或真实纯度。
 cfg_chem,显示化学品纯度

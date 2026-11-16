@@ -51,6 +51,29 @@ namespace ItemBadges
             cacheValid = false;
         }
 
+        public static void ForEachItem(Action<GameItem> visit)
+        {
+            if (visit == null)
+            {
+                return;
+            }
+
+            try
+            {
+                VisitAll(visit);
+                ItemSelectHandler handler = ItemSelectHandler.current;
+                GameItem equipped = handler != null ? handler.GetEquippedItem() : null;
+                if (equipped != null)
+                {
+                    visit(equipped);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModEntry.Instance?.Log.Warning("ToolAccess.ForEachItem failed: " + ex.Message);
+            }
+        }
+
         public static string Dump()
         {
             Invalidate();

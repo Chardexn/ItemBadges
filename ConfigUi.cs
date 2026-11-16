@@ -5,7 +5,7 @@ using UnityEngine;
 namespace ItemBadges
 {
     /// <summary>
-    /// 本模组配置面板：中文选项、品质对照预览（属性说明放 tips）。
+    /// 本模组配置面板：中文选项、分块、可折叠品质对照。
     /// </summary>
     [HarmonyPatch]
     internal static class ConfigUi
@@ -15,8 +15,22 @@ namespace ItemBadges
         private const string PreviewWaterId = "preview_water";
         private const string PreviewYeastId = "preview_yeast";
         private const string PreviewWineId = "preview_wine";
+        private const string PreviewGunId = "preview_gun";
         private const string PreviewIngotId = "preview_ingot";
         private const string PreviewChemId = "preview_chem";
+
+        private static readonly string[] LegendIds =
+        {
+            "legend_header",
+            "label_" + PreviewScaleId, PreviewScaleId,
+            "label_" + PreviewBerryId, PreviewBerryId,
+            "label_" + PreviewWaterId, PreviewWaterId,
+            "label_" + PreviewWineId, PreviewWineId,
+            "label_" + PreviewYeastId, PreviewYeastId,
+            "label_" + PreviewGunId, PreviewGunId,
+            "label_" + PreviewIngotId, PreviewIngotId,
+            "label_" + PreviewChemId, PreviewChemId
+        };
 
         #region MARK: 补丁
         private static System.Reflection.MethodBase TargetMethod()
@@ -63,7 +77,8 @@ namespace ItemBadges
             object boxedValue = entry.BoxedValue;
             if (valueType == typeof(bool))
             {
-                b.AddToggle("", (bool)boxedValue, null, entry.Key);
+                Action<bool> onToggle = entry.Key == "legend_expanded" ? (Action<bool>)SetLegendVisible : null;
+                b.AddToggle("", (bool)boxedValue, onToggle, entry.Key);
             }
             else if (entry.Choices != null && entry.Choices.Length != 0)
             {
@@ -81,6 +96,14 @@ namespace ItemBadges
                 {
                     b.AddDropdown(labels, index, OnWaterModeChanged, entry.Key);
                 }
+                else if (entry.Key == "wine_number")
+                {
+                    b.AddDropdown(labels, index, OnWineModeChanged, entry.Key);
+                }
+                else if (entry.Key == "yeast_number")
+                {
+                    b.AddDropdown(labels, index, OnYeastModeChanged, entry.Key);
+                }
                 else
                 {
                     b.AddDropdown(labels, index, null, entry.Key);
@@ -96,21 +119,25 @@ namespace ItemBadges
 
             b.End();
 
-            if (entry.Key == "style")
+            if (entry.Key == "legend_expanded")
             {
-                AddLegend(b, ParseStyle(IndexOf(entry)), BadgeConfig.WaterNumbers, BadgeConfig.Scheme);
+                AddLegend(
+                    b,
+                    ParseStyle(DropdownIndex("style")),
+                    PendingWaterMode(),
+                    PendingWineMode(),
+                    PendingYeastMode(),
+                    PendingScheme());
+                SetLegendVisible((bool)boxedValue);
             }
-        }
-
-        private static int IndexOf(ConfigEntry entry)
-        {
-            return Mathf.Max(0, Array.IndexOf(entry.Choices, ConfigEntry.Format(entry.BoxedValue)));
         }
 
         private static void AddLegend(
             CustomUIBuilder b,
             BadgeStyle style,
             WaterNumberMode waterMode,
+            WineNumberMode wineMode,
+            YeastNumberMode yeastMode,
             ColorScheme scheme)
         {
             b.AddSpace(6f);
@@ -123,8 +150,9 @@ namespace ItemBadges
                 AddLegendRow(b, "cfg_legend_scale", "cfg_legend_scale_tip", PreviewScaleId, ScaleLegend(), style);
                 AddLegendRow(b, "cfg_legend_berry", "cfg_legend_berry_tip", PreviewBerryId, BerryBadge.Legend(), style);
                 AddLegendRow(b, "cfg_legend_water", "cfg_legend_water_tip", PreviewWaterId, WaterBadge.Legend(waterMode), style);
-                AddLegendRow(b, "cfg_legend_wine", "cfg_legend_wine_tip", PreviewWineId, WineBadge.Legend(), style);
-                AddLegendRow(b, "cfg_legend_yeast", "cfg_legend_yeast_tip", PreviewYeastId, YeastBadge.Legend(), style);
+                AddLegendRow(b, "cfg_legend_wine", "cfg_legend_wine_tip", PreviewWineId, WineBadge.Legend(wineMode), style);
+                AddLegendRow(b, "cfg_legend_yeast", "cfg_legend_yeast_tip", PreviewYeastId, YeastBadge.Legend(yeastMode), style);
+                AddLegendRow(b, "cfg_legend_gun", "cfg_legend_gun_tip", PreviewGunId, GunBadge.Legend(), style);
                 AddLegendRow(b, "cfg_legend_ingot", "cfg_legend_ingot_tip", PreviewIngotId, IngotBadge.Legend(), style);
                 AddLegendRow(b, "cfg_legend_chem", "cfg_legend_chem_tip", PreviewChemId, ChemBadge.Legend(), style);
             }
@@ -163,15 +191,21 @@ namespace ItemBadges
             return badges;
         }
 
-        private static void RefreshPreviews(BadgeStyle style, WaterNumberMode water, ColorScheme scheme)
+        private static void RefreshPreviews(
+            BadgeStyle style,
+            WaterNumberMode water,
+            WineNumberMode wine,
+            YeastNumberMode yeast,
+            ColorScheme scheme)
         {
             using (PaletteScope(scheme))
             {
                 SetPreview(PreviewScaleId, ScaleLegend(), style);
                 SetPreview(PreviewBerryId, BerryBadge.Legend(), style);
                 SetPreview(PreviewWaterId, WaterBadge.Legend(water), style);
-                SetPreview(PreviewWineId, WineBadge.Legend(), style);
-                SetPreview(PreviewYeastId, YeastBadge.Legend(), style);
+                SetPreview(PreviewWineId, WineBadge.Legend(wine), style);
+                SetPreview(PreviewYeastId, YeastBadge.Legend(yeast), style);
+                SetPreview(PreviewGunId, GunBadge.Legend(), style);
                 SetPreview(PreviewIngotId, IngotBadge.Legend(), style);
                 SetPreview(PreviewChemId, ChemBadge.Legend(), style);
             }
@@ -179,18 +213,70 @@ namespace ItemBadges
 
         private static void OnStyleChanged(int index)
         {
-            RefreshPreviews(ParseStyle(index), PendingWaterMode(), PendingScheme());
+            RefreshPreviews(ParseStyle(index), PendingWaterMode(), PendingWineMode(), PendingYeastMode(), PendingScheme());
         }
 
         private static void OnSchemeChanged(int index)
         {
-            RefreshPreviews(PendingStyle(), PendingWaterMode(), ParseScheme(index));
+            RefreshPreviews(PendingStyle(), PendingWaterMode(), PendingWineMode(), PendingYeastMode(), ParseScheme(index));
         }
 
         private static void OnWaterModeChanged(int index)
         {
-            WaterNumberMode mode = index == 1 ? WaterNumberMode.WineScore : WaterNumberMode.Quality;
-            RefreshPreviews(PendingStyle(), mode, PendingScheme());
+            RefreshPreviews(
+                PendingStyle(),
+                index == 1 ? WaterNumberMode.WineScore : WaterNumberMode.Quality,
+                PendingWineMode(),
+                PendingYeastMode(),
+                PendingScheme());
+        }
+
+        private static void OnWineModeChanged(int index)
+        {
+            RefreshPreviews(
+                PendingStyle(),
+                PendingWaterMode(),
+                index == 1 ? WineNumberMode.Score : WineNumberMode.Grade,
+                PendingYeastMode(),
+                PendingScheme());
+        }
+
+        private static void OnYeastModeChanged(int index)
+        {
+            RefreshPreviews(
+                PendingStyle(),
+                PendingWaterMode(),
+                PendingWineMode(),
+                index == 1 ? YeastNumberMode.FermentDays : YeastNumberMode.WineScore,
+                PendingScheme());
+        }
+
+        internal static void SetLegendVisible(bool visible)
+        {
+            CustomUIWindow window = GetWindow();
+            if (window == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < LegendIds.Length; i++)
+            {
+                CustomUIElement element = window.Get(LegendIds[i]);
+                if (element == null || element.root == null)
+                {
+                    continue;
+                }
+
+                Transform parent = element.root.transform.parent;
+                if (parent != null)
+                {
+                    parent.gameObject.SetActive(visible);
+                }
+                else
+                {
+                    element.SetVisible(visible);
+                }
+            }
         }
 
         private static PaletteOverride PaletteScope(ColorScheme scheme)
@@ -198,7 +284,7 @@ namespace ItemBadges
             return new PaletteOverride(scheme);
         }
 
-        private sealed class PaletteOverride : System.IDisposable
+        private sealed class PaletteOverride : IDisposable
         {
             public PaletteOverride(ColorScheme scheme)
             {
@@ -219,6 +305,16 @@ namespace ItemBadges
         private static WaterNumberMode PendingWaterMode()
         {
             return DropdownIndex("water_number") == 1 ? WaterNumberMode.WineScore : WaterNumberMode.Quality;
+        }
+
+        private static WineNumberMode PendingWineMode()
+        {
+            return DropdownIndex("wine_number") == 1 ? WineNumberMode.Score : WineNumberMode.Grade;
+        }
+
+        private static YeastNumberMode PendingYeastMode()
+        {
+            return DropdownIndex("yeast_number") == 1 ? YeastNumberMode.FermentDays : YeastNumberMode.WineScore;
         }
 
         private static ColorScheme PendingScheme()
@@ -302,6 +398,24 @@ namespace ItemBadges
                 };
             }
 
+            if (entry.Key == "wine_number")
+            {
+                return new[]
+                {
+                    ModEntry.L("opt_wine_grade"),
+                    ModEntry.L("opt_wine_score")
+                };
+            }
+
+            if (entry.Key == "yeast_number")
+            {
+                return new[]
+                {
+                    ModEntry.L("opt_yeast_score"),
+                    ModEntry.L("opt_yeast_days")
+                };
+            }
+
             if (entry.Key == "purity_mode")
             {
                 return new[]
@@ -361,5 +475,36 @@ namespace ItemBadges
             }
         }
         #endregion
+    }
+
+    [HarmonyPatch(typeof(ModConfigWindow), nameof(ModConfigWindow.Open))]
+    internal static class ConfigWindowSectionsPatch
+    {
+        private static void Postfix(LoadedMod mod, CustomUIWindow __result)
+        {
+            if (mod?.Manifest == null || __result == null || !__result.IsAlive)
+            {
+                return;
+            }
+
+            if (mod.Manifest.ID != ModEntry.MOD_ID)
+            {
+                return;
+            }
+
+            __result.Get("section_appearance")?.SetText(ModEntry.L("cfg_section_appearance"));
+            __result.Get("section_legend")?.SetText(ModEntry.L("cfg_section_legend"));
+            __result.Get("section_berry")?.SetText(ModEntry.L("cfg_section_berry"));
+            __result.Get("section_yeast")?.SetText(ModEntry.L("cfg_section_yeast"));
+            __result.Get("section_water")?.SetText(ModEntry.L("cfg_section_water"));
+            __result.Get("section_wine")?.SetText(ModEntry.L("cfg_section_wine"));
+            __result.Get("section_gun")?.SetText(ModEntry.L("cfg_section_gun"));
+            __result.Get("section_ingot")?.SetText(ModEntry.L("cfg_section_ingot"));
+            __result.Get("section_chem")?.SetText(ModEntry.L("cfg_section_chem"));
+
+            CustomUIElement toggle = __result.Get("legend_expanded");
+            bool expanded = toggle != null && toggle.GetBool();
+            ConfigUi.SetLegendVisible(expanded);
+        }
     }
 }

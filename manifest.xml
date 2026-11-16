@@ -3,10 +3,10 @@
   <ID>item_badges</ID>
   <Name>物品角标</Name>
   <Author>kirkxia</Author>
-  <ModVersion>1.8</ModVersion>
-  <Description>在葡萄、酵母、水、成品酒、金属锭和化学品的角落显示品质角标。可切换标签纯度或真实纯度；真实档水需检测仪，化学品需成分光谱仪。</Description>
+  <ModVersion>1.9</ModVersion>
+  <Description>在葡萄、酵母、水、成品酒、枪械、金属锭和化学品的角落显示品质角标。酒分以自酿为 0、琼浆为 +3；兼容酿酒拓展；枪械五档成色。可切换标签纯度或真实纯度。</Description>
   <GameVersions>
-    <Version>1.0.0.13</Version>
+    <Version>1.0.0</Version>
   </GameVersions>
   <Prerequisites />
   <Assemblies>

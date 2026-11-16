@@ -1,6 +1,15 @@
 # key,text
+cfg_section_appearance,Appearance
+cfg_section_legend,Legend
+cfg_section_berry,Berries
+cfg_section_yeast,Yeast
+cfg_section_water,Water
+cfg_section_wine,Wine
+cfg_section_gun,Weapons
+cfg_section_ingot,Ingots
+cfg_section_chem,Chemicals
 cfg_style,Badge style
-cfg_style_tip,Swatch: color only. Number: pixel digits in the box. Arrow: hollow chevrons; reusable yeast still shows infinity.
+cfg_style_tip,Swatch: color only. Number: pixel digits in the box. Arrow: hollow chevrons for high/low.
 opt_style_block,Swatch only
 opt_style_number,Numbers
 opt_style_arrow,Arrows
@@ -15,37 +24,51 @@ opt_corner_tl,Top left
 opt_corner_tr,Top right
 opt_corner_bl,Bottom left
 opt_corner_br,Bottom right
+cfg_legend_expanded,Show quality legend
+cfg_legend_expanded_tip,When on, draws the color-scale previews on this page. Turn off to keep the settings short.
 cfg_water_number,Water numbers
 cfg_water_number_tip,Quality: grades relative to base water (pure +2). Wine score: brewing W (pure and high-quality both +1; gutterflow -3).
 opt_water_quality,By water grade
 opt_water_wine,By wine score
 cfg_purity_mode,Purity display
-cfg_purity_mode_tip,Label: the sticker grade, no analyser. Real: actual grade. Water needs a tester; chemicals need the composition spectrometer.
+cfg_purity_mode_tip,Label: the sticker grade, no analyser. Real: actual grade. Water needs a tester; chemicals need the composition spectrometer. Ingots and gun condition also follow this setting.
 opt_purity_label,Label purity
 opt_purity_real,Real purity
+cfg_wine_number,Wine numbers
+cfg_wine_number_tip,Grade: homemade (score 2) is 0, vintage (6) is +3; higher scores keep the top color and keep counting. Score: show the raw wine points.
+opt_wine_grade,By grade
+opt_wine_score,By score
+cfg_yeast_number,Yeast numbers
+cfg_yeast_number_tip,Wine score: every legal yeast is +1; color shows grade. Ferment days: nights remaining drop by yeast power (normal ~2, super ~1). Illegal yeast is red.
+opt_yeast_score,Wine score
+opt_yeast_days,Ferment days
 cfg_legend,Quality legend
 cfg_legend_scale,Scale
-cfg_legend_scale_tip,Middle of the 7 colors is 0. Default black −3→red −2→dark gray −1→white 0→yellow +1→blue +2→green +3. Counterfeit / illegal / reusable yeast use purple.
+cfg_legend_scale_tip,Middle of the 7 colors is 0. Default black −3→red −2→dark gray −1→white 0→yellow +1→blue +2→green +3. Counterfeit / reusable yeast use purple; illegal yeast is red.
 cfg_legend_berry,Berries
-cfg_legend_berry_tip,Requires a magnifier. Mold -1 / under- or overripe 0 / normal +1 / small +2. The number is the wine-score contribution.
+cfg_legend_berry_tip,Requires a magnifier. Mold -1 / under- or overripe 0 / normal +1 / small +2. The number is the wine-score contribution. Brewing Expansion fruit, giant fruit, and pulp use this too.
 cfg_legend_water,Water
 cfg_legend_water_tip,Label needs no tool; real needs a water tester (AquaScan or an unused test strip). Worst to best: gutterflow / rust / ghost / base / high quality / pure. Digits follow Water numbers.
 cfg_legend_wine,Wine
-cfg_legend_wine_tip,Production (score 3–4) is 0. Undrinkable ≤0 / bucket 1 / homebrew 2 / production 3–4 / reserve 5 / vintage ≥6 / counterfeit (purple).
+cfg_legend_wine_tip,Grade: homemade (score 2) is 0, vintage (6) is +3; higher scores keep the top color and keep counting. Score shows the raw point total. Counterfeit is purple x.
 cfg_legend_yeast,Yeast
-cfg_legend_yeast_tip,Illegal (purple x) / normal +1 / super +2 / reusable (purple infinity). No tool required.
+cfg_legend_yeast_tip,Digits are wine-score +1 or ferment days. Normal uses the +1 color; super uses +2; reusable is purple; illegal is red. No tool required.
+cfg_legend_gun,Guns
+cfg_legend_gun_tip,Firearms and stun guns only. Poor -2 / fair -1 / good 0 / excellent +1 / new +2. Label vs real follows Purity display. No tool required. Melee is not marked.
 cfg_legend_ingot,Ingots
 cfg_legend_ingot_tip,Label is the fake tag; real is actual purity. Very low -2 / low -1 / fair 0 / high +1 / very high +2 / perfect +3. Fair is 0.
 cfg_legend_chem,Chemicals
 cfg_legend_chem_tip,Label needs no tool; real needs the composition spectrometer. Starch -3 / junk -2 / cut -1 / street 0 / near-pharma +1 / pharma +2 / lab +3. Street standard is 0.
 cfg_berry,Show berry quality
-cfg_berry_tip,Requires a magnifier. Mold -1, under/overripe 0, normal +1, small +2.
+cfg_berry_tip,Requires a magnifier. Mold -1, under/overripe 0, normal +1, small +2. Brewing Expansion fruit, giant fruit, and pulp share this toggle.
 cfg_yeast,Show yeast type
-cfg_yeast_tip,Normal +1; super +2; illegal (purple x); reusable (purple infinity). No tool required.
+cfg_yeast_tip,Every yeast adds +1 wine score; color marks normal / super / reusable (purple) / illegal (red). Can show ferment days instead. No tool required.
 cfg_water,Show water purity
 cfg_water_tip,Label needs no tool; real needs a water tester. Base water is 0. Switch Water numbers between grade and brewing W.
 cfg_wine,Show wine quality
-cfg_wine_tip,Finished wine. Production is 0. No tool required. Counterfeit is purple.
+cfg_wine_tip,Fermenting and finished wine. Homebrew is 0, vintage is +3. No tool required. Counterfeit is purple. Compatible with Brewing Expansion recipe wines.
+cfg_gun,Show gun condition
+cfg_gun_tip,Firearms and stun guns only. Good (stats ±0%) is 0. Poor -2 / fair -1 / good 0 / excellent +1 / new +2. Condition follows Purity display. No tool required.
 cfg_ingot,Show ingot purity
 cfg_ingot_tip,Metal ingots. Fair (sale price ±0%) is 0. Very low -2 / low -1 / fair 0 / high +1 / very high +2 / perfect +3. Purity display switches label vs real.
 cfg_chem,Show chemical purity

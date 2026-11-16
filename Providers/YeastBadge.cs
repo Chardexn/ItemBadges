@@ -1,7 +1,9 @@
+using UnityEngine;
+
 namespace ItemBadges
 {
     /// <summary>
-    /// 酵母：非法/可循环为特殊紫；普通 +1、超级 +2 走当前配色。不需要工具。
+    /// 酵母：数字为酿酒值 +1 或发酵天数；颜色按品级。非法红色。不需要工具。
     /// </summary>
     internal static class YeastBadge
     {
@@ -22,47 +24,50 @@ namespace ItemBadges
                 return null;
             }
 
+            return Make(GradeColor(item), YeastPower(item), BadgeConfig.YeastNumbers);
+        }
+
+        public static Badge[] Legend(YeastNumberMode? mode = null)
+        {
+            YeastNumberMode use = mode ?? BadgeConfig.YeastNumbers;
+            return new[]
+            {
+                Make(BadgePalette.ForDelta(1), 2, use),
+                Make(BadgePalette.ForDelta(2), 4, use),
+                Make(BadgePalette.Special(), 4, use),
+                Make(BadgePalette.Red, 2, use)
+            };
+        }
+
+        private static Badge Make(Color color, int power, YeastNumberMode mode)
+        {
+            if (mode == YeastNumberMode.FermentDays)
+            {
+                int days = FermentDays(power);
+                return new Badge(color, days.ToString(), Badge.ArrowForDelta(2 - days));
+            }
+
+            return new Badge(color, Badge.FormatDelta(1), Badge.ArrowForDelta(1));
+        }
+
+        private static Color GradeColor(GameItem item)
+        {
             if (item.IsTag(WineHelper.WINE_YEAST_ILLEGAL_TAG))
             {
-                return Illegal();
+                return BadgePalette.Red;
             }
 
             if (item.IsTag(WineHelper.WINE_YEAST_REUSABLE_TAG))
             {
-                return Reusable();
+                return BadgePalette.Special();
             }
 
             if (item.identifier == "wine_superyeast" || YeastPower(item) >= 4)
             {
-                return Super();
+                return BadgePalette.ForDelta(2);
             }
 
-            return Normal();
-        }
-
-        public static Badge Illegal()
-        {
-            return new Badge(BadgePalette.Special(), "x", "x");
-        }
-
-        public static Badge Normal()
-        {
-            return Badge.FromDelta(1);
-        }
-
-        public static Badge Super()
-        {
-            return Badge.FromDelta(2);
-        }
-
-        public static Badge Reusable()
-        {
-            return new Badge(BadgePalette.Special(), "\u221e", "\u221e");
-        }
-
-        public static Badge[] Legend()
-        {
-            return new[] { Illegal(), Normal(), Super(), Reusable() };
+            return BadgePalette.ForDelta(1);
         }
 
         private static int YeastPower(GameItem item)
@@ -74,6 +79,13 @@ namespace ItemBadges
             }
 
             return power;
+        }
+
+        private static int FermentDays(int power)
+        {
+            int use = power < 1 ? 2 : power;
+            int days = (WineHelper.BASE_FERMENTATION_PERIOD + use - 1) / use;
+            return days < 1 ? 1 : days;
         }
         #endregion
 

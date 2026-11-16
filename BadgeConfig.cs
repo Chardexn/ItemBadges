@@ -21,6 +21,18 @@ namespace ItemBadges
         WineScore = 1
     }
 
+    internal enum WineNumberMode
+    {
+        Grade = 0,
+        Score = 1
+    }
+
+    internal enum YeastNumberMode
+    {
+        WineScore = 0,
+        FermentDays = 1
+    }
+
     internal enum PurityMode
     {
         Label = 0,
@@ -42,12 +54,16 @@ namespace ItemBadges
         public static ConfigEntry<BadgeStyle> StyleEntry { get; private set; }
         public static ConfigEntry<ColorScheme> SchemeEntry { get; private set; }
         public static ConfigEntry<BadgeCorner> CornerEntry { get; private set; }
+        public static ConfigEntry<bool> LegendExpandedEntry { get; private set; }
         public static ConfigEntry<WaterNumberMode> WaterNumberEntry { get; private set; }
+        public static ConfigEntry<WineNumberMode> WineNumberEntry { get; private set; }
+        public static ConfigEntry<YeastNumberMode> YeastNumberEntry { get; private set; }
         public static ConfigEntry<PurityMode> PurityModeEntry { get; private set; }
         public static ConfigEntry<bool> BerryEnabledEntry { get; private set; }
         public static ConfigEntry<bool> YeastEnabledEntry { get; private set; }
         public static ConfigEntry<bool> WaterEnabledEntry { get; private set; }
         public static ConfigEntry<bool> WineEnabledEntry { get; private set; }
+        public static ConfigEntry<bool> GunEnabledEntry { get; private set; }
         public static ConfigEntry<bool> IngotEnabledEntry { get; private set; }
         public static ConfigEntry<bool> ChemEnabledEntry { get; private set; }
 
@@ -55,8 +71,14 @@ namespace ItemBadges
         public static ColorScheme Scheme =>
             SchemeEntry != null ? SchemeEntry.Value : ColorScheme.YellowBlueGreen;
         public static BadgeCorner Corner => CornerEntry != null ? CornerEntry.Value : BadgeCorner.BottomRight;
+        public static bool LegendExpanded =>
+            LegendExpandedEntry != null && LegendExpandedEntry.Value;
         public static WaterNumberMode WaterNumbers =>
             WaterNumberEntry != null ? WaterNumberEntry.Value : WaterNumberMode.Quality;
+        public static WineNumberMode WineNumbers =>
+            WineNumberEntry != null ? WineNumberEntry.Value : WineNumberMode.Grade;
+        public static YeastNumberMode YeastNumbers =>
+            YeastNumberEntry != null ? YeastNumberEntry.Value : YeastNumberMode.WineScore;
         public static PurityMode PurityDisplay =>
             PurityModeEntry != null ? PurityModeEntry.Value : PurityMode.Label;
         public static bool UseRealPurity => PurityDisplay == PurityMode.Real;
@@ -64,6 +86,7 @@ namespace ItemBadges
         public static bool YeastEnabled => YeastEnabledEntry == null || YeastEnabledEntry.Value;
         public static bool WaterEnabled => WaterEnabledEntry == null || WaterEnabledEntry.Value;
         public static bool WineEnabled => WineEnabledEntry == null || WineEnabledEntry.Value;
+        public static bool GunEnabled => GunEnabledEntry == null || GunEnabledEntry.Value;
         public static bool IngotEnabled => IngotEnabledEntry == null || IngotEnabledEntry.Value;
         public static bool ChemEnabled => ChemEnabledEntry == null || ChemEnabledEntry.Value;
 
@@ -71,82 +94,109 @@ namespace ItemBadges
         public static void Define()
         {
             ModConfig cfg = ModHelper.GetConfig(ModEntry.MOD_ID);
-            const string section = "常规";
 
             StyleEntry = Bind(cfg.DefineEnum(
                 "style",
                 BadgeStyle.Number,
-                section,
+                "appearance",
                 () => ModEntry.L("cfg_style"),
                 () => ModEntry.L("cfg_style_tip")));
 
             SchemeEntry = Bind(cfg.DefineEnum(
                 "color_scheme",
                 ColorScheme.YellowBlueGreen,
-                section,
+                "appearance",
                 () => ModEntry.L("cfg_scheme"),
                 () => ModEntry.L("cfg_scheme_tip")));
 
             CornerEntry = Bind(cfg.DefineEnum(
                 "badge_corner",
                 BadgeCorner.BottomRight,
-                section,
+                "appearance",
                 () => ModEntry.L("cfg_corner"),
                 () => ModEntry.L("cfg_corner_tip")));
 
-            WaterNumberEntry = Bind(cfg.DefineEnum(
-                "water_number",
-                WaterNumberMode.Quality,
-                section,
-                () => ModEntry.L("cfg_water_number"),
-                () => ModEntry.L("cfg_water_number_tip")));
-
-            PurityModeEntry = Bind(cfg.DefineEnum(
-                "purity_mode",
-                PurityMode.Label,
-                section,
-                () => ModEntry.L("cfg_purity_mode"),
-                () => ModEntry.L("cfg_purity_mode_tip")));
+            LegendExpandedEntry = Bind(cfg.Define(
+                "legend_expanded",
+                false,
+                "legend",
+                () => ModEntry.L("cfg_legend_expanded"),
+                () => ModEntry.L("cfg_legend_expanded_tip")));
 
             BerryEnabledEntry = Bind(cfg.Define(
                 "berry_enabled",
                 true,
-                section,
+                "berry",
                 () => ModEntry.L("cfg_berry"),
                 () => ModEntry.L("cfg_berry_tip")));
 
             YeastEnabledEntry = Bind(cfg.Define(
                 "yeast_enabled",
                 true,
-                section,
+                "yeast",
                 () => ModEntry.L("cfg_yeast"),
                 () => ModEntry.L("cfg_yeast_tip")));
+
+            YeastNumberEntry = Bind(cfg.DefineEnum(
+                "yeast_number",
+                YeastNumberMode.WineScore,
+                "yeast",
+                () => ModEntry.L("cfg_yeast_number"),
+                () => ModEntry.L("cfg_yeast_number_tip")));
 
             WaterEnabledEntry = Bind(cfg.Define(
                 "water_enabled",
                 true,
-                section,
+                "water",
                 () => ModEntry.L("cfg_water"),
                 () => ModEntry.L("cfg_water_tip")));
+
+            WaterNumberEntry = Bind(cfg.DefineEnum(
+                "water_number",
+                WaterNumberMode.Quality,
+                "water",
+                () => ModEntry.L("cfg_water_number"),
+                () => ModEntry.L("cfg_water_number_tip")));
+
+            PurityModeEntry = Bind(cfg.DefineEnum(
+                "purity_mode",
+                PurityMode.Label,
+                "water",
+                () => ModEntry.L("cfg_purity_mode"),
+                () => ModEntry.L("cfg_purity_mode_tip")));
 
             WineEnabledEntry = Bind(cfg.Define(
                 "wine_enabled",
                 true,
-                section,
+                "wine",
                 () => ModEntry.L("cfg_wine"),
                 () => ModEntry.L("cfg_wine_tip")));
+
+            WineNumberEntry = Bind(cfg.DefineEnum(
+                "wine_number",
+                WineNumberMode.Grade,
+                "wine",
+                () => ModEntry.L("cfg_wine_number"),
+                () => ModEntry.L("cfg_wine_number_tip")));
+
+            GunEnabledEntry = Bind(cfg.Define(
+                "gun_enabled",
+                true,
+                "gun",
+                () => ModEntry.L("cfg_gun"),
+                () => ModEntry.L("cfg_gun_tip")));
 
             IngotEnabledEntry = Bind(cfg.Define(
                 "ingot_enabled",
                 true,
-                section,
+                "ingot",
                 () => ModEntry.L("cfg_ingot"),
                 () => ModEntry.L("cfg_ingot_tip")));
 
             ChemEnabledEntry = Bind(cfg.Define(
                 "chem_enabled",
                 true,
-                section,
+                "chem",
                 () => ModEntry.L("cfg_chem"),
                 () => ModEntry.L("cfg_chem_tip")));
         }

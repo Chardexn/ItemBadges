@@ -7,7 +7,8 @@ using UnityEngine.UI;
 namespace ItemBadges
 {
     /// <summary>
-    /// 在物品旋转后的视觉包围盒角落画角标（叠在图标之上）。
+    /// 在物品实际占用格的角落画角标（叠在图标之上）。
+    /// 不规则形状（枪械）贴最近的实心格，不落到包围盒缺口里。
     /// middle 仍是未旋转本地尺寸，要用 globalWidth/Height。
     /// </summary>
     internal static class BadgeRenderer
@@ -52,6 +53,20 @@ namespace ItemBadges
             }
         }
 
+        public static void RefreshWorld()
+        {
+            ToolAccess.Invalidate();
+            ToolAccess.ForEachItem(ApplyItem);
+        }
+
+        public static void ApplyItem(GameItem item)
+        {
+            if (item is GameItemElement element)
+            {
+                Apply(element);
+            }
+        }
+
         private static void PruneTracked()
         {
             for (int i = Tracked.Count - 1; i >= 0; i--)
@@ -70,6 +85,7 @@ namespace ItemBadges
                 return;
             }
 
+            Nodes nodes = GetOrCreate(element);
             bool hide = element.isDebugMenu
                 || element.background == null
                 || element.background.image == null
@@ -78,15 +94,10 @@ namespace ItemBadges
             Badge? resolved = hide ? null : BadgeRegistry.Resolve(element);
             if (!resolved.HasValue)
             {
-                if (NodeTable.TryGetValue(element, out Nodes existing))
-                {
-                    Hide(existing);
-                }
-
+                Hide(nodes);
                 return;
             }
 
-            Nodes nodes = GetOrCreate(element);
             TreeNodeRender image = EnsureImage(nodes, element.middle);
             LayoutBadge(image, element, resolved.Value);
         }
@@ -130,7 +141,9 @@ namespace ItemBadges
         #region MARK: 布局
         private static void LayoutBadge(TreeNodeRender node, GameItemElement element, Badge badge)
         {
-            int px = Mathf.Max(1, UISettings.current.gridSize / 16);
+            int grid = UISettings.current.gridSize;
+            int px = Mathf.Max(1, grid / 16);
+            float scale = IsSingleCell(element.modifiedShape) ? 0.6f : 1f;
             Sprite sprite = BadgeSprite.Create(badge, BadgeConfig.Style);
             RectTransform rect = node.rectTransform;
             rect.localEulerAngles = Vector3.zero;
@@ -139,51 +152,160 @@ namespace ItemBadges
             rect.anchorMax = new Vector2(0f, 1f);
             rect.SetAsLastSibling();
             rect.sizeDelta = new Vector2(
-                sprite.rect.width * px,
-                sprite.rect.height * px);
-            ApplyVisualCorner(rect, element, px);
+                sprite.rect.width * px * scale,
+                sprite.rect.height * px * scale);
+            ApplyVisualCorner(rect, element, px, scale);
             node.image.sprite = sprite;
             node.image.color = Color.white;
             node.image.enabled = true;
         }
 
-        private static void ApplyVisualCorner(RectTransform rect, GameItemElement element, int px)
+        private static void ApplyVisualCorner(RectTransform rect, GameItemElement element, int px, float scale)
         {
             int grid = UISettings.current.gridSize;
+            BadgeCorner corner = BadgeConfig.Corner;
+            float s = InsetPx * px * scale;
+            float cellL = 0f;
+            float cellT = 0f;
             GridShape shape = element.modifiedShape;
-            float gw = grid;
-            float gh = grid;
-            if (shape != null)
+            if (TryOccupiedCell(shape, corner, out int col, out int row))
             {
-                gw = Mathf.Max(grid, shape.globalWidth * grid);
-                gh = Mathf.Max(grid, shape.globalHeight * grid);
+                cellL = col * grid;
+                cellT = -row * grid;
+            }
+            else
+            {
+                float gw = grid;
+                float gh = grid;
+                if (shape != null)
+                {
+                    gw = Mathf.Max(grid, shape.globalWidth * grid);
+                    gh = Mathf.Max(grid, shape.globalHeight * grid);
+                }
+
+                if (corner == BadgeCorner.TopRight || corner == BadgeCorner.BottomRight)
+                {
+                    cellL = gw - grid;
+                }
+
+                if (corner == BadgeCorner.BottomLeft || corner == BadgeCorner.BottomRight)
+                {
+                    cellT = -gh + grid;
+                }
             }
 
-            float s = InsetPx * px;
             Vector2 pivot;
             Vector2 pos;
-            switch (BadgeConfig.Corner)
+            switch (corner)
             {
                 case BadgeCorner.TopLeft:
                     pivot = new Vector2(0f, 1f);
-                    pos = new Vector2(s, -s);
+                    pos = new Vector2(cellL + s, cellT - s);
                     break;
                 case BadgeCorner.TopRight:
                     pivot = new Vector2(1f, 1f);
-                    pos = new Vector2(gw - s, -s);
+                    pos = new Vector2(cellL + grid - s, cellT - s);
                     break;
                 case BadgeCorner.BottomLeft:
                     pivot = new Vector2(0f, 0f);
-                    pos = new Vector2(s, -gh + s);
+                    pos = new Vector2(cellL + s, cellT - grid + s);
                     break;
                 default:
                     pivot = new Vector2(1f, 0f);
-                    pos = new Vector2(gw - s, -gh + s);
+                    pos = new Vector2(cellL + grid - s, cellT - grid + s);
                     break;
             }
 
             rect.pivot = pivot;
             rect.anchoredPosition = pos;
+        }
+
+        private static bool TryOccupiedCell(GridShape shape, BadgeCorner corner, out int col, out int row)
+        {
+            col = 0;
+            row = 0;
+            if (shape == null)
+            {
+                return false;
+            }
+
+            int minX = shape.minX;
+            int minY = shape.minY;
+            int maxX = shape.maxX;
+            int maxY = shape.maxY;
+            bool preferRight = corner == BadgeCorner.TopRight || corner == BadgeCorner.BottomRight;
+            bool preferBottom = corner == BadgeCorner.BottomLeft || corner == BadgeCorner.BottomRight;
+            int targetX = preferRight ? maxX : minX;
+            int targetY = preferBottom ? maxY : minY;
+
+            bool found = false;
+            int bestDist = 0;
+            int bestTie = 0;
+            int bestGx = minX;
+            int bestGy = minY;
+            for (int gy = minY; gy <= maxY; gy++)
+            {
+                for (int gx = minX; gx <= maxX; gx++)
+                {
+                    if (!shape.Intersects(gx, gy))
+                    {
+                        continue;
+                    }
+
+                    int dist = Math.Abs(gx - targetX) + Math.Abs(gy - targetY);
+                    int tie = (preferRight ? gx : -gx) + (preferBottom ? gy : -gy);
+                    if (!found || dist < bestDist || (dist == bestDist && tie > bestTie))
+                    {
+                        found = true;
+                        bestDist = dist;
+                        bestTie = tie;
+                        bestGx = gx;
+                        bestGy = gy;
+                    }
+                }
+            }
+
+            if (!found)
+            {
+                return false;
+            }
+
+            col = bestGx - minX;
+            row = bestGy - minY;
+            return true;
+        }
+
+        private static bool IsSingleCell(GridShape shape)
+        {
+            if (shape == null)
+            {
+                return true;
+            }
+
+            if (shape.globalWidth <= 1 && shape.globalHeight <= 1)
+            {
+                return true;
+            }
+
+            int count = 0;
+            for (int gy = shape.minY; gy <= shape.maxY; gy++)
+            {
+                for (int gx = shape.minX; gx <= shape.maxX; gx++)
+                {
+                    if (!shape.Intersects(gx, gy))
+                    {
+                        continue;
+                    }
+
+                    count++;
+                    if (count > 1)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static void Hide(Nodes nodes)

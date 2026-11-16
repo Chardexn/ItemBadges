@@ -107,10 +107,15 @@ namespace ItemBadges
 
         private static void Spawn(int grade)
         {
-            GameItem jug = ModHelper.SpawnItem("water_jug");
+            GameItem jug = ModHelper.SpawnItem("large_bottled_water");
             if (jug == null)
             {
-                ModEntry.Instance?.Log.Warning("water_jug spawn failed.");
+                jug = ModHelper.SpawnItem("water_jug");
+            }
+
+            if (jug == null)
+            {
+                ModEntry.Instance?.Log.Warning("large_bottled_water spawn failed.");
                 return;
             }
 

@@ -23,34 +23,50 @@ namespace ItemBadges
 
         public void OnEnable()
         {
+            PulpBadge.Register();
             BerryBadge.Register();
             YeastBadge.Register();
             WaterBadge.Register();
             WineBadge.Register();
+            GunBadge.Register();
             IngotBadge.Register();
             ChemBadge.Register();
-            ModHook.OnGameLoadedNormal += OnGameLoaded;
+            ModHook.OnGameLoadedLate += OnGameLoaded;
+            ModHook.OnWakingUpLate += OnNightlyRefresh;
+            ModHook.OnHandlingNightlyServicesLate += OnNightlyRefresh;
             ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Berries", BerryBadge.SpawnSamples);
             ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Yeast", YeastBadge.SpawnSamples);
             ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Water", WaterBadge.SpawnSamples);
             ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Wine", WineBadge.SpawnSamples);
             ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Ingots", IngotBadge.SpawnSamples);
             ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Chems", ChemBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_SPAWN, "IB Guns", GunBadge.SpawnSamples);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Showcase Vanilla", BadgeShowcase.RunVanilla);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Showcase Guns", BadgeShowcase.RunGuns);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Showcase Mod", BadgeShowcase.RunMod);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Clear Showcase", BadgeShowcase.Clear);
             ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Dump Tools", DumpTools);
-            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Refresh Badges", BadgeRenderer.RefreshAll);
+            ModHelper.AddDebugFunction(MOD_ID, ModHelper.DEBUG_CATEGORY_COMMAND, "IB Refresh Badges", BadgeRenderer.RefreshWorld);
         }
 
         public void OnDisable()
         {
-            ModHook.OnGameLoadedNormal -= OnGameLoaded;
+            ModHook.OnGameLoadedLate -= OnGameLoaded;
+            ModHook.OnWakingUpLate -= OnNightlyRefresh;
+            ModHook.OnHandlingNightlyServicesLate -= OnNightlyRefresh;
             BadgeRegistry.Clear();
             ModHelper.RemoveDebugFunctions(MOD_ID);
         }
 
         private static void OnGameLoaded()
         {
-            ToolAccess.Invalidate();
-            BadgeRenderer.RefreshAll();
+            BadgeRenderer.RefreshWorld();
+            ModHelper.Delay(MOD_ID, 0.25f, BadgeRenderer.RefreshWorld);
+        }
+
+        private static void OnNightlyRefresh()
+        {
+            BadgeRenderer.RefreshWorld();
         }
 
         private static void DumpTools()
