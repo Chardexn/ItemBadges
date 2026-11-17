@@ -22,17 +22,12 @@
 
 ## 设置
 
-游戏主菜单 → 模组 → 本模组右侧齿轮：
+主菜单 → 模组 → 齿轮（选项全文见 README）：
 
-- **外观**：角标样式（默认「数字」；可选仅色块 / 数字 / 箭头）、配色方案（默认「黑红灰白黄蓝绿」；可选黑红灰白绿蓝黄 / 灰白绿蓝紫金红）、角标位置（默认「右下」；可选左上 / 右上 / 左下 / 右下）
-- **对照**：显示品质对照（默认关；打开后在本页画出各类色阶图例并实时预览）
-- **葡萄**：显示葡萄品质（默认开）
-- **酵母**：显示酵母种类（默认开）、酵母数值（默认「酿酒值」；可选酿酒值 / 发酵天数）
-- **水**：显示水纯净度（默认开）、水质数值（默认「按水品质」；可选按水品质 / 按酿酒值）、纯度显示（默认「标签纯度」；可选标签纯度 / 真实纯度，水、化学品、金属锭与枪械共用此项）
-- **酒**：显示酒品质（默认开）、酒品质数值（默认「按档位」；可选按档位 / 按评分）
-- **武器**：显示枪械成色（默认开）
-- **金属锭**：显示金属锭纯度（默认开）
-- **化学品**：显示化学品纯度（默认开）
+- 外观：默认数字、黑红灰白黄蓝绿、右下
+- 品质对照：默认关
+- 各类显示：默认开
+- 酵母数值：默认酿酒值；水质：按水品质；酒：按档位；纯度：标签纯度
 
 ## 卸载
 
@@ -83,11 +78,12 @@ Game versions: 1.0.0
 
 ## Settings
 
-Mod menu gear:
+Mod menu gear (full options in README):
 
-- **Appearance**: Badge style (default Numbers), Color scheme (default 7-color black-red-gray-white-yellow-blue-green, +0 in the middle), Badge corner (default Bottom right)
-- **Legend**: Show quality legend (default off; live color-scale previews)
-- **Per-category toggles & modes** (all toggles default on): Berry, Yeast (Wine score / Ferment days), Water (By water grade / By wine score; Purity display: Label / Real, shared with chemicals, ingots, and guns), Wine (By grade / By score), Guns, Ingots, Chemicals
+- Appearance: default Numbers, 7-color black-red-gray-white-yellow-blue-green, bottom right
+- Quality legend: default off
+- Category badges: default on
+- Yeast: wine score; Water: by grade; Wine: by grade; Purity: label
 
 ## Uninstall
 
